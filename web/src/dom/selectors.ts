@@ -1,0 +1,29 @@
+export const dom = {
+  // top bar
+  nav: document.querySelector('[data-testid="topbar"]'),
+  logout: document.querySelector('[data-testid="btn-logout"]'),
+  userEmail: document.querySelector('[data-testid="user-email"]'),
+
+  // login screen inputs
+  emailInput: document.querySelector('[data-testid="login-email"]'),
+  passInput: document.querySelector('[data-testid="login-password"]'),
+
+  // register screen inputs
+  regEmailInput: document.querySelector('[data-testid="register-email"]'),
+  regPassInput: document.querySelector('[data-testid="register-password"]'),
+  regPassInput2: document.querySelector('[data-testid="register-password2"]'),
+  registerFormBtn: document.querySelector('[data-testid="btn-register-form"]'),
+
+  // buttons
+  loginBtn: document.querySelector('[data-testid="btn-login"]'),
+  registerBtn: document.querySelector('[data-testid="btn-register"]'),
+  registerBackBtn: document.querySelector('[data-testid="btn-register-back"]'),
+  bikeBtn: document.querySelectorAll('.bikeCard__main'),
+  backToGarageBtn: document.querySelector('[data-testid="btn-back-to-garage"]'),
+
+  // screens
+  loginScreen: document.querySelector('[data-testid="screen-login"]'),
+  registerScreen: document.querySelector('[data-testid="screen-register"]'),
+  garageScreen: document.querySelector('[data-testid="screen-garage"]'),
+  bikeScreen: document.querySelector('[data-testid="screen-bike"]'),
+};

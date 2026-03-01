@@ -127,6 +127,79 @@
         </div>
       </section>
 
+      <!-- SCREEN: REGISTER -->
+      <section
+        class="screen is-hidden"
+        id="screen-register"
+        data-testid="screen-register">
+        <div class="auth">
+          <div class="auth__card" data-testid="register-card">
+            <div class="auth__brand">
+              <div class="auth__brand">
+                <img
+                  class="auth__logoImg"
+                  src="./src/assets/logo.png"
+                  alt="MotoCare"
+                  width="150"
+                  height="150"
+                  data-testid="register-logo" />
+                <div>
+                  <div class="auth__title">Moto Care</div>
+                  <div class="auth__subtitle">
+                    Sign in to manage your garage.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <form class="form" data-testid="register-form">
+              <label class="label" for="registerEmail">Email</label>
+              <input
+                id="registerEmail"
+                class="input"
+                type="email"
+                autocomplete="email"
+                placeholder="you@example.com"
+                data-testid="register-email" />
+
+              <label class="label" for="registerPass">Password</label>
+              <input
+                id="registerPass"
+                class="input"
+                type="password"
+                autocomplete="current-password"
+                placeholder="••••••••"
+                data-testid="register-password" />
+
+              <label class="label" for="registerPass2">Confirm password</label>
+              <input
+                id="registerPass2"
+                class="input"
+                type="password"
+                autocomplete="current-password"
+                placeholder="••••••••"
+                data-testid="register-password2" />
+
+              <button
+                class="btn btn--primary btn--block"
+                type="button"
+                data-testid="btn-register-submit">
+                Register
+              </button>
+
+              <button
+                class="btn btn--soft btn--block"
+                type="button"
+                data-testid="btn-register-back">
+                Back
+              </button>
+
+              <div class="form__hint" data-testid="login-hint"></div>
+            </form>
+          </div>
+        </div>
+      </section>
+
       <!-- SCREEN: GARAGE -->
       <section
         class="screen is-hidden"
