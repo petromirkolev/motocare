@@ -5,7 +5,19 @@ import {
   renderRegisterScreen,
 } from '../dom/render';
 import { dom } from '../dom/selectors';
-import { addBikeToGarage } from './bike';
+
+type Action =
+  | 'auth.login'
+  | 'auth.logout'
+  | 'nav.login'
+  | 'nav.register'
+  | 'nav.garage'
+  | 'nav.bikeAdd'
+  | 'bike.open'
+  | 'bike.edit.open'
+  | 'bike.delete'
+  | 'bike.add.submit'
+  | 'bike.edit.submit';
 
 function bindEvents(): void {
   document.addEventListener('click', (e: MouseEvent) => {
@@ -14,7 +26,7 @@ function bindEvents(): void {
 
     if (!el) return;
 
-    const action = el.dataset.action;
+    const action = el.dataset.action as Action | undefined;
     console.log(action);
 
     if (!action) return;
@@ -38,12 +50,6 @@ function bindEvents(): void {
         break;
 
       case 'bike.add.submit': {
-        const make = (dom.make as HTMLInputElement).value.trim();
-        const year = Number((dom.year as HTMLInputElement).value);
-        const model = (dom.model as HTMLInputElement).value.trim();
-        const odo = Number((dom.odo as HTMLInputElement).value);
-
-        addBikeToGarage(make, year, model, odo);
         (dom.addBikeForm as HTMLFormElement).reset();
         renderGarageScreen();
         break;

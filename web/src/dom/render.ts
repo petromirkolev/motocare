@@ -36,6 +36,8 @@ function renderBikeScreen(): void {
   dom.bikeScreen?.classList.remove('is-hidden');
 }
 
+function renderBikesInGarage(): void {}
+
 export {
   renderInitialScreen,
   renderGarageScreen,

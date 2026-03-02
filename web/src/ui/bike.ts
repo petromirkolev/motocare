@@ -1,15 +1,9 @@
-function addBikeToGarage(
-  name: string,
-  year: number,
-  model: string,
-  odo: number,
-) {
-  console.log(name);
+function addBikeToGarage() {
+  // add bike
 }
 
 function editBike(): void {
   // edit bike
-  console.log('edit bike');
 }
 
 function removeBikeFromGarage(e: Event) {
