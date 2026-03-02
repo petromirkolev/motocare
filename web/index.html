@@ -3,12 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MotoCare</title>
+    <title>Moto Care</title>
     <link rel="stylesheet" href="./src/style.css" />
   </head>
 
   <body>
-    <!-- Top nav (visible on app screens, hidden on login) -->
+    <!-- TOP NAV -->
     <header class="nav is-hidden" data-testid="topbar" id="topbar">
       <div class="nav__inner">
         <div class="brand" data-testid="brand">
@@ -222,137 +222,10 @@
 
         <!-- Bikes grid -->
         <div class="garageGrid" data-testid="garage-grid">
-          <!-- Example bike card (clone from TS later) -->
-          <article class="bikeCard" data-testid="bike-card-1" data-bike-id="1">
-            <button
-              class="bikeCard__main"
-              type="button"
-              data-testid="bike-open-1">
-              <div class="bikeCard__name" data-testid="bike-name-1">Yamaha</div>
-              <div class="bikeCard__meta" data-testid="bike-meta-1">
-                2021 Yamaha Tracer 9GT
-              </div>
-              <div class="bikeCard__odo">
-                <span class="bikeCard__odoVal" data-testid="bike-odo-1"
-                  >23000</span
-                >
-                <span class="bikeCard__odoUnit">km</span>
-              </div>
-            </button>
+          <!-- Bike cards -->
 
-            <div class="bikeCard__actions">
-              <button
-                class="iconbtn iconbtn--edit"
-                type="button"
-                data-testid="bike-edit-1"
-                aria-label="Edit bike">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-                  <path
-                    d="M12 20h9"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round" />
-                  <path
-                    d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4 11.5-11.5Z"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linejoin="round" />
-                </svg>
-              </button>
-
-              <button
-                class="iconbtn iconbtn--danger"
-                type="button"
-                data-testid="bike-delete-1"
-                aria-label="Delete bike">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-                  <path
-                    d="M3 6h18"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round" />
-                  <path
-                    d="M8 6V4h8v2"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linejoin="round" />
-                  <path
-                    d="M6 6l1 16h10l1-16"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linejoin="round" />
-                </svg>
-              </button>
-            </div>
-          </article>
-          <article class="bikeCard" data-testid="bike-card-2" data-bike-id="2">
-            <button
-              class="bikeCard__main"
-              type="button"
-              data-testid="bike-open-2">
-              <div class="bikeCard__name" data-testid="bike-name-2">Yamaha</div>
-              <div class="bikeCard__meta" data-testid="bike-meta-2">
-                2022 Yamaha Tracer 9GT
-              </div>
-              <div class="bikeCard__odo">
-                <span class="bikeCard__odoVal" data-testid="bike-odo-2"
-                  >24000</span
-                >
-                <span class="bikeCard__odoUnit">km</span>
-              </div>
-            </button>
-
-            <div class="bikeCard__actions">
-              <button
-                class="iconbtn iconbtn--edit"
-                type="button"
-                data-testid="bike-edit-2"
-                aria-label="Edit bike">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-                  <path
-                    d="M12 20h9"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round" />
-                  <path
-                    d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4 11.5-11.5Z"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linejoin="round" />
-                </svg>
-              </button>
-
-              <button
-                class="iconbtn iconbtn--danger"
-                type="button"
-                data-testid="bike-delete-1"
-                aria-label="Delete bike">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-                  <path
-                    d="M3 6h18"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round" />
-                  <path
-                    d="M8 6V4h8v2"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linejoin="round" />
-                  <path
-                    d="M6 6l1 16h10l1-16"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linejoin="round" />
-                </svg>
-              </button>
-            </div>
-          </article>
-
-          <!-- Empty state (show when no bikes) -->
-          <div
-            class="empty is-hidden"
-            data-testid="garage-empty"
-            id="garage-empty">
+          <!-- If no bike cards -->
+          <div class="empty" data-testid="garage-empty" id="garage-empty">
             <div class="empty__title">No motorcycles yet</div>
             <div class="empty__sub">
               Add your first bike to start tracking maintenance.

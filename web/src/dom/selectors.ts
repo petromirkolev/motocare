@@ -28,4 +28,8 @@ export const dom = {
   registerScreen: document.querySelector('[data-testid="screen-register"]'),
   garageScreen: document.querySelector('[data-testid="screen-garage"]'),
   bikeScreen: document.querySelector('[data-testid="screen-bike"]'),
+
+  // bikes grid
+  bikeGrid: document.querySelector('[data-testid="garage-grid"]'),
+  noBikesYetGrid: document.querySelector('[data-testid="garage-empty"]'),
 };
