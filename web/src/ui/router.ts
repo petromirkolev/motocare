@@ -5,6 +5,7 @@ import {
   renderRegisterScreen,
 } from '../dom/render';
 import { dom } from '../dom/selectors';
+import { editBike, removeBikeFromGarage } from './bike';
 
 function bindEvents(): void {
   dom.loginBtn?.addEventListener('click', renderGarageScreen);
@@ -15,6 +16,10 @@ function bindEvents(): void {
     bike.addEventListener('click', renderBikeScreen),
   );
   dom.backToGarageBtn?.addEventListener('click', renderGarageScreen);
+  dom.deleteBikeBtn?.forEach((bike) =>
+    bike.addEventListener('click', (e) => removeBikeFromGarage(e)),
+  );
+  dom.editBikeBtn.forEach((bike) => bike.addEventListener('click', editBike));
 }
 
 export { bindEvents };

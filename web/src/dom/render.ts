@@ -22,10 +22,10 @@ function renderGarageScreen(): void {
   dom.garageScreen?.classList.remove('is-hidden');
   dom.bikeScreen?.classList.add('is-hidden');
 
-  dom.userEmail.innerHTML = `Hello, Petro!`;
+  dom.userEmail!.innerHTML = `Hello, Petro!`;
 }
 
-function renderBikeScreen(bikeId: number): void {
+function renderBikeScreen(): void {
   dom.garageScreen?.classList.add('is-hidden');
   dom.bikeScreen?.classList.remove('is-hidden');
 }
