@@ -377,7 +377,6 @@
               </div>
             </div>
 
-            <!-- hidden id so TS knows what bike is being edited -->
             <input
               type="hidden"
               data-testid="edit-bike-id"
@@ -477,23 +476,20 @@
         <section class="bike" data-testid="bike-header">
           <div class="bike__main">
             <div class="bike__title">
-              <h1 class="h1" data-testid="bike-name">Yamaha</h1>
-              <div class="bike__subtitle" data-testid="bike-model">
-                2021 Yamaha Tracer 9GT
-              </div>
+              <h1 class="h1" data-testid="bike-name"></h1>
+              <div class="bike__subtitle" data-testid="bike-model"></div>
             </div>
 
             <div class="bike__actions">
               <div class="pill" data-testid="bike-odo-pill">
-                <span class="pill__value" data-testid="bike-odometer"
-                  >23000</span
-                >
+                <span class="pill__value" data-testid="bike-odometer"></span>
                 <span class="pill__unit">km</span>
               </div>
 
               <button
                 class="iconbtn"
                 type="button"
+                data-bike-id=""
                 data-action="bike.edit.open"
                 data-testid="btn-edit-bike"
                 aria-label="Edit bike">
@@ -514,6 +510,7 @@
               <button
                 class="iconbtn iconbtn--danger"
                 type="button"
+                data-bike-id=""
                 data-action="bike.delete"
                 data-testid="btn-delete-bike"
                 aria-label="Delete bike">

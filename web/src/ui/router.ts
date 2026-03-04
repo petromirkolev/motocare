@@ -1,6 +1,7 @@
 import { render } from '../dom/render';
 import { dom } from '../dom/selectors';
 import { bikeStore, readBikeForm } from '../state/bikeStore';
+import { showScreen } from './showScreen';
 
 type Action =
   | 'auth.login'
@@ -104,6 +105,12 @@ function bindEvents(): void {
         render.garageScreen();
         break;
       }
+
+      case 'bike.open':
+        showScreen('bike');
+        // set edit and delete buttons daa bike id
+        // set make/model/year/odo in html from bike data
+        break;
     }
   });
 }
