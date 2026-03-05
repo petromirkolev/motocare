@@ -38,6 +38,7 @@ export const dom = {
   editOdo: document.querySelector<HTMLInputElement>('#editBikeOdo'),
 
   // maintenance form
+  maintenanceEditBtn: document.querySelector('[data-testid="btn-edit-bike"]'),
   bikeName: document.querySelector('[data-testid="bike-name"]'),
   bikeModel: document.querySelector('[data-testid="bike-model"]'),
   bikeOdo: document.querySelector('[data-testid="bike-odometer"]'),

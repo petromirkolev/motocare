@@ -2,9 +2,7 @@ import { render } from '../dom/render';
 import { dom } from '../dom/selectors';
 import { bikeStore, readBikeForm } from '../state/bikeStore';
 import { showScreen } from './showScreen';
-
-let foundId: any = '';
-let foundBike: any = '';
+import { appState } from '../types/state';
 
 type Action =
   | 'auth.login'
@@ -60,19 +58,24 @@ function bindEvents(): void {
       }
 
       case 'bike.delete':
-        foundId = target.closest<HTMLElement>('[data-action]')?.dataset.bikeId;
-        bikeStore.deleteBike(foundId);
+        bikeStore.deleteBike(
+          target.closest<HTMLElement>('[data-action]')?.dataset.bikeId,
+        );
         render.garageScreen();
         break;
 
       case 'bike.edit.open':
         render.editBikeScreen();
 
-        foundId = target.closest<HTMLElement>('[data-action]')?.dataset.bikeId;
-        if (!foundId) break;
+        appState.selectedBikeId =
+          target.closest<HTMLElement>('[data-action]')?.dataset.bikeId;
 
-        foundBike = bikeStore.getBike(foundId);
-        if (!foundBike) break;
+        console.log(appState.selectedBikeId);
+
+        if (!appState.selectedBikeId) break;
+
+        appState.selectedBikeFound = bikeStore.getBike(appState.selectedBikeId);
+        if (!appState.selectedBikeFound) break;
 
         const editMake = dom.editMake;
         const editYear = dom.editYear;
@@ -84,12 +87,12 @@ function bindEvents(): void {
           throw new Error('Edit form inputs missing from DOM');
         }
 
-        editId.value = foundId;
+        editId.value = appState.selectedBikeId;
 
-        editMake.value = foundBike.make;
-        editYear.value = String(foundBike.year);
-        editModel.value = foundBike.model;
-        editOdo.value = String(foundBike.odo);
+        editMake.value = appState.selectedBikeFound.make;
+        editYear.value = String(appState.selectedBikeFound.year);
+        editModel.value = appState.selectedBikeFound.model;
+        editOdo.value = String(appState.selectedBikeFound.odo);
 
         break;
 
@@ -108,21 +111,30 @@ function bindEvents(): void {
         break;
       }
 
-      case 'bike.open':
+      case 'bike.open': {
         showScreen('bike');
 
-        foundId = target.closest<HTMLElement>('[data-action]')?.dataset.bikeId;
-        if (!foundId) break;
+        appState.selectedBikeId =
+          target.closest<HTMLElement>('[data-action]')?.dataset.bikeId;
+        if (!appState.selectedBikeId) break;
 
-        foundBike = bikeStore.getBike(foundId);
-        if (!foundBike) break;
+        dom.maintenanceEditBtn.dataset.bikeId = appState.selectedBikeId;
 
-        (dom.bikeName as HTMLElement).innerHTML = foundBike.make;
-        (dom.bikeModel as HTMLElement).innerHTML = foundBike.model;
-        (dom.bikeOdo as HTMLElement).innerHTML = foundBike.odo;
+        appState.selectedBikeFound = bikeStore.getBike(appState.selectedBikeId);
+        if (!appState.selectedBikeFound) break;
+
+        console.log(appState.selectedBikeFound);
+
+        (dom.bikeName as HTMLElement).innerHTML =
+          appState.selectedBikeFound.make;
+        (dom.bikeModel as HTMLElement).innerHTML =
+          appState.selectedBikeFound.model;
+        (dom.bikeOdo as HTMLElement).innerHTML = String(
+          appState.selectedBikeFound.odo,
+        );
         // set edit and delete buttons daa bike id
         // set make/model/year/odo in html from bike data
-        dom.break;
+      }
     }
   });
 }

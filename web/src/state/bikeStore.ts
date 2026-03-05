@@ -64,7 +64,7 @@ export const bikeStore = {
   },
 
   getBike(id: string): Bike | undefined {
-    return state.bikes.find((b) => b.id === id);
+    return state.bikes.find((b: any) => b.id === id);
   },
 
   addBike(input: Omit<Bike, 'id'>): Bike {
@@ -90,12 +90,12 @@ export const bikeStore = {
   },
 
   deleteBike(id: string | undefined) {
-    state = { ...state, bikes: state.bikes.filter((b) => b.id !== id) };
+    state = { ...state, bikes: state.bikes.filter((b: any) => b.id !== id) };
     notify();
   },
 
   updateBike(id: string, patch: Partial<Omit<Bike, 'id'>>) {
-    const current = state.bikes.find((b) => b.id === id);
+    const current = state.bikes.find((b: any) => b.id === id);
     if (!current) throw new Error('Bike not found');
 
     const next: Bike = {
