@@ -3,6 +3,9 @@ export const dom = {
   logout: document.querySelector<HTMLElement>('[data-testid="btn-logout"]'),
   userEmail: document.querySelector<HTMLElement>('[data-testid="user-email"]'),
 
+  // buttons
+  button: document.querySelector('.btn--primary'),
+
   // login screen inputs
   emailInput: document.querySelector<HTMLInputElement>(
     '[data-testid="login-email"]',
@@ -61,7 +64,7 @@ export const dom = {
   ),
 
   // add bike form
-  addBikeForm: document.querySelector<HTMLElement>(
+  addBikeForm: document.querySelector<HTMLFormElement>(
     '[data-testid="add-bike-form"]',
   ),
 
@@ -75,7 +78,7 @@ export const dom = {
   editModel: document.querySelector<HTMLInputElement>('#editBikeModel'),
   editOdo: document.querySelector<HTMLInputElement>('#editBikeOdo'),
 
-  // maintenance form
+  // maintenance header
   maintenanceEditBtn: document.querySelector<HTMLButtonElement>(
     '[data-testid="btn-edit-bike"]',
   ),
@@ -95,5 +98,10 @@ export const dom = {
   ),
   maintenanceSchedule: document.querySelector<HTMLModElement>(
     '[data-testid="modal-schedule"]',
+  ),
+
+  // maintenance log service
+  logServiceForm: document.querySelector<HTMLFormElement>(
+    '[data-testid="log-form"]',
   ),
 };

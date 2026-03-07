@@ -1224,7 +1224,7 @@
 
           <form class="form" data-testid="log-form">
             <!-- store which task is being logged -->
-            <input type="hidden" name="taskId" data-testid="log-task-id" />
+            <input type="hidden" data-task-id="" data-testid="log-task-id" />
 
             <label class="label" for="logDoneAt">Date</label>
             <input
@@ -1293,7 +1293,10 @@
           </div>
 
           <form class="form" data-testid="schedule-form">
-            <input type="hidden" name="taskId" data-testid="schedule-task-id" />
+            <input
+              type="hidden"
+              data-task-id=""
+              data-testid="schedule-task-id" />
 
             <label class="label" for="schKm">Interval (km)</label>
             <input

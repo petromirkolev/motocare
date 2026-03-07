@@ -67,7 +67,7 @@ export const bikeStore = {
     return state.bikes.find((b: any) => b.id === id);
   },
 
-  addBike(input: Omit<Bike, 'id'>): Bike {
+  addBike(input: Omit<Bike, 'id'> | any): Bike {
     if (!input.make.trim()) throw new Error('Bike name required');
     if (!Number.isFinite(input.year) || input.year < 1900)
       throw new Error('Invalid year');
@@ -98,7 +98,7 @@ export const bikeStore = {
     const current = state.bikes.find((b: any) => b.id === id);
     if (!current) throw new Error('Bike not found');
 
-    const next: Bike = {
+    const next: Bike | any = {
       ...current,
       ...patch,
     };

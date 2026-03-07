@@ -160,7 +160,7 @@ function bindEvents(): void {
       }
 
       case 'log.submit': {
-        maintenanceStore.addLog();
+        maintenanceStore.addLog(target);
         render.closeServiceModal();
         break;
       }

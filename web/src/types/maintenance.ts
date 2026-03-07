@@ -1,4 +1,5 @@
 export type Maintenance = {
+  whichService: string | undefined;
   log: {
     date: null;
     odo: null;
