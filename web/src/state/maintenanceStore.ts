@@ -3,6 +3,7 @@ import type { MaintenanceLog } from '../types/maintenanceLog';
 import { getState, updateState, newId } from './stateStorage';
 import { bikeStore } from './bikeStore';
 import { appState } from '../types/state';
+import { req } from '../utils/domHelper';
 
 export function readMaintenanceLogForm(form: HTMLFormElement) {
   const fd = new FormData(form);
@@ -114,7 +115,32 @@ export const maintenanceStore = {
 
   updateMaintenanceItemProgress() {},
 
-  updateOverallProgress() {},
+  updateOverallProgress(dom: any) {
+    const items = getState();
+    const selectedBike = appState.selectedBikeId;
+    const lastServicedItem = items.maintenanceLog.find(
+      (item) => item.bikeId === selectedBike,
+    );
+
+    // Update "Recent History"
+    if (lastServicedItem !== undefined) {
+      dom.history.querySelector('.empty__title').textContent =
+        lastServicedItem.name
+          ?.split('-')
+          .map((a) => a.toUpperCase())
+          .join(' ');
+      dom.history.querySelector('.empty__sub').textContent =
+        `Done on ${lastServicedItem.date} @ ${lastServicedItem.odo} km.`;
+    } else {
+      dom.history.querySelector('.empty__title').textContent =
+        'No service history yet';
+      dom.history.querySelector('.empty__sub').textContent =
+        'Log a service to start building your maintenance timeline.';
+    }
+
+    // Update Overdue / Due Soon / On Track
+    dom.onTrack.textContent = items.maintenance.length;
+  },
 
   schedule() {
     console.log('log scheduled');

@@ -150,6 +150,7 @@ function bindEvents(): void {
         );
 
         maintenanceStore.updateTaskInfo(appState.selectedBikeId);
+        maintenanceStore.updateOverallProgress(dom, target);
 
         break;
       }

@@ -104,4 +104,8 @@ export const dom = {
   logServiceForm: document.querySelector<HTMLFormElement>(
     '[data-testid="log-form"]',
   ),
+
+  // maintenance stats
+  onTrack: document.querySelector('[data-testid="stat-ok-count"]'),
+  history: document.querySelector('[data-testid="history-empty"]'),
 };
