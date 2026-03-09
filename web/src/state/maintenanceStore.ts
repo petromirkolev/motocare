@@ -3,7 +3,6 @@ import type { MaintenanceLog } from '../types/maintenanceLog';
 import { getState, updateState, newId } from './stateStorage';
 import { bikeStore } from './bikeStore';
 import { appState } from '../types/state';
-import { req } from '../utils/domHelper';
 
 export function readMaintenanceLogForm(form: HTMLFormElement) {
   const fd = new FormData(form);
@@ -15,6 +14,18 @@ export function readMaintenanceLogForm(form: HTMLFormElement) {
   if (!odo) throw new Error('Odo is required');
 
   return { date, odo };
+}
+
+export function readMaintenanceScheduleForm(form: HTMLFormElement) {
+  const fd = new FormData(form);
+
+  const nextDate = String(fd.get('intervalDays') ?? '').trim();
+  const nextOdo = String(fd.get('intervalKm') ?? '').trim();
+
+  if (!nextDate) throw new Error('Interval days are required');
+  if (!nextOdo) throw new Error('Interval kilometers are required');
+
+  return { nextDate, nextOdo };
 }
 
 export function getMaintenanceTask(
@@ -36,7 +47,7 @@ export const maintenanceStore = {
     if (!input.date.trim()) throw new Error('Date is required');
     if (
       !Number.isFinite(Number(input.odo)) ||
-      Number(input.odo) < selectedBike.odo
+      Number(input.odo) < Number(selectedBike.odo)
     ) {
       throw new Error('Invalid odometer');
     }
@@ -66,7 +77,6 @@ export const maintenanceStore = {
   ) {
     const current = getState().maintenance.find((m) => m.id === id);
     if (!current) throw new Error('Maintenance task not found');
-    console.log(current);
 
     const next: Maintenance = {
       ...current,
@@ -111,16 +121,25 @@ export const maintenanceStore = {
     });
   },
 
-  updateRecentHistory() {},
-
-  updateMaintenanceItemProgress() {},
-
   updateOverallProgress(dom: any) {
     const items = getState();
     const selectedBike = appState.selectedBikeId;
     const lastServicedItem = items.maintenanceLog.find(
       (item) => item.bikeId === selectedBike,
     );
+    const totalDueItems = items.maintenance.filter((item) => {
+      item.nextDate !== null || item.nextOdo !== null;
+    });
+
+    const totalServiceItems = items.maintenance.filter(
+      (item) => item.bikeId === selectedBike,
+    );
+
+    const today = new Date().toISOString().slice(0, 10);
+
+    const totalOverdueItems = items.maintenance.filter((item) => {
+      item.nextDate !== null && item.nextDate < today;
+    });
 
     // Update "Recent History"
     if (lastServicedItem !== undefined) {
@@ -139,10 +158,33 @@ export const maintenanceStore = {
     }
 
     // Update Overdue / Due Soon / On Track
-    dom.onTrack.textContent = items.maintenance.length;
+    dom.onTrack.textContent = totalServiceItems.length;
+    dom.dueSoon.textContent = totalDueItems.length;
+    dom.overdue.textContent = totalOverdueItems.length;
   },
 
-  schedule() {
-    console.log('log scheduled');
+  scheduleTask(
+    id: string,
+    currentTask: string,
+    patch: Partial<
+      Omit<Maintenance, 'id' | 'bikeId' | 'name' | 'odo' | 'date'>
+    >,
+  ) {
+    const current = getState().maintenance.find((log) => {
+      return log.bikeId === id && log.name === currentTask;
+    });
+    if (!current) throw new Error('Maintenance task not found');
+
+    console.log(patch);
+
+    const next: Maintenance = {
+      ...current,
+      ...patch,
+    };
+
+    updateState((prev) => ({
+      ...prev,
+      maintenance: prev.maintenance.map((m) => (m.id === id ? next : m)),
+    }));
   },
 };

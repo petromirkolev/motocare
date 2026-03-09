@@ -96,7 +96,7 @@ export const dom = {
   maintenanceModal: document.querySelector<HTMLModElement>(
     '[data-testid="modal-log"]',
   ),
-  maintenanceSchedule: document.querySelector<HTMLModElement>(
+  maintenanceScheduleModal: document.querySelector<HTMLModElement>(
     '[data-testid="modal-schedule"]',
   ),
 
@@ -104,8 +104,13 @@ export const dom = {
   logServiceForm: document.querySelector<HTMLFormElement>(
     '[data-testid="log-form"]',
   ),
+  scheduleServiceForm: document.querySelector<HTMLFormElement>(
+    '[data-testid="schedule-form"]',
+  ),
 
   // maintenance stats
   onTrack: document.querySelector('[data-testid="stat-ok-count"]'),
+  dueSoon: document.querySelector('[data-testid="stat-dueSoon-count"]'),
+  overdue: document.querySelector('[data-testid="stat-overdue-count"]'),
   history: document.querySelector('[data-testid="history-empty"]'),
 };

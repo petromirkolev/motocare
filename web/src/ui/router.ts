@@ -2,12 +2,12 @@ import { render } from '../dom/render';
 import { dom } from '../dom/selectors';
 import { req } from '../utils/domHelper';
 import { bikeStore, readBikeForm } from '../state/bikeStore';
-import { showScreen } from './showScreen';
 import { appState } from '../types/state';
 import {
   getMaintenanceTask,
   maintenanceStore,
   readMaintenanceLogForm,
+  readMaintenanceScheduleForm,
 } from '../state/maintenanceStore';
 
 type Action =
@@ -125,7 +125,7 @@ function bindEvents(): void {
       }
 
       case 'bike.open': {
-        showScreen('bike');
+        render.maintenanceScreen();
 
         appState.selectedBikeId =
           target.closest<HTMLElement>('[data-action]')?.dataset.bikeId;
@@ -150,7 +150,7 @@ function bindEvents(): void {
         );
 
         maintenanceStore.updateTaskInfo(appState.selectedBikeId);
-        maintenanceStore.updateOverallProgress(dom, target);
+        maintenanceStore.updateOverallProgress(dom);
 
         break;
       }
@@ -166,6 +166,10 @@ function bindEvents(): void {
       }
 
       case 'schedule.service': {
+        appState.currentMaintenanceItem =
+          target.closest<HTMLElement>(
+            '[data-action]',
+          )?.parentElement?.parentElement?.dataset.name;
         render.openServiceModal('schedule.service');
         break;
       }
@@ -193,14 +197,33 @@ function bindEvents(): void {
           maintenanceStore.updateMaintenanceTask(existingTask.id, input);
         }
 
+        maintenanceStore.updateTaskInfo(bikeId);
+        maintenanceStore.updateOverallProgress(dom);
         form.reset();
         render.closeServiceModal();
         break;
       }
 
       case 'schedule.submit': {
-        maintenanceStore.schedule();
+        const form = (dom.scheduleServiceForm as HTMLFormElement) || null;
+        const input = readMaintenanceScheduleForm(form);
+
+        const bikeId = appState.selectedBikeId;
+
+        if (!bikeId) throw new Error('No bike selected');
+
+        const currentTask = appState.currentMaintenanceItem;
+        if (!currentTask) throw new Error('No maintenance item selected');
+
+        maintenanceStore.scheduleTask(bikeId, currentTask, input);
+
+        console.log('submitted');
+
+        // maintenanceStore.updateTaskInfo(bikeId);
+        // maintenanceStore.updateOverallProgress(dom);
         render.closeServiceModal();
+        form.reset();
+
         break;
       }
     }

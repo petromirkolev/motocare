@@ -33,6 +33,10 @@ export const render = {
       : req(dom.garageEmpty, 'garageEmpty').classList.remove('is-hidden');
   },
 
+  maintenanceScreen() {
+    showScreen('bike');
+  },
+
   addBikeScreen(): void {
     showScreen('bikeAdd');
   },
@@ -46,11 +50,11 @@ export const render = {
       dom.maintenanceModal?.classList.remove('is-hidden');
 
     if (target === 'schedule.service')
-      dom.maintenanceSchedule?.classList.remove('is-hidden');
+      dom.maintenanceScheduleModal?.classList.remove('is-hidden');
   },
 
   closeServiceModal(): void {
     dom.maintenanceModal?.classList.add('is-hidden');
-    dom.maintenanceSchedule?.classList.add('is-hidden');
+    dom.maintenanceScheduleModal?.classList.add('is-hidden');
   },
 };
