@@ -1,4 +1,10 @@
-import type { Maintenance } from '../types/maintenance';
+import type {
+  Maintenance,
+  MaintenanceLogInput,
+  MaintenanceLogPatch,
+  MaintenanceScheduleInput,
+  MaintenanceSchedulePatch,
+} from '../types/maintenance';
 import type { MaintenanceLog } from '../types/maintenanceLog';
 import { getState, updateState, newId } from './stateStorage';
 import { bikeStore } from './bikeStore';
@@ -8,11 +14,14 @@ import { checkOverdueStatus } from '../utils/serviceOverdueHelper';
 import { checkServiceItemsStatus } from '../utils/serviceItemsHelper';
 import { markDueTasks, markOverdueTasks } from '../utils/domHelper';
 //
-export function readMaintenanceLogForm(form: HTMLFormElement) {
+export function readMaintenanceLogForm(
+  form: HTMLFormElement,
+): MaintenanceLogInput {
   const fd = new FormData(form);
 
-  const date = String(fd.get('doneAt') ?? '').trim();
-  const odo = String(fd.get('odo') ?? '').trim();
+  const date: string = String(fd.get('doneAt') ?? '').trim();
+  const odoRaw: string = String(fd.get('odo') ?? '').trim();
+  const odo = Number(odoRaw);
 
   if (!date) throw new Error('Date is required');
   if (!odo) throw new Error('Odo is required');
@@ -20,11 +29,14 @@ export function readMaintenanceLogForm(form: HTMLFormElement) {
   return { date, odo };
 }
 
-export function readMaintenanceScheduleForm(form: HTMLFormElement) {
+export function readMaintenanceScheduleForm(
+  form: HTMLFormElement,
+): MaintenanceScheduleInput {
   const fd = new FormData(form);
 
-  const intervalDays = String(fd.get('intervalDays') ?? '').trim();
-  const intervalKm = String(fd.get('intervalKm') ?? '').trim();
+  const intervalDays: string = String(fd.get('intervalDays') ?? '').trim();
+  const intervalKmRaw: string = String(fd.get('intervalKm') ?? '').trim();
+  const intervalKm = Number(intervalKmRaw);
 
   if (!intervalDays) throw new Error('Interval days are required');
   if (!intervalKm) throw new Error('Interval kilometers are required');
@@ -42,14 +54,16 @@ export function getMaintenanceTask(
 }
 
 export const maintenanceStore = {
-  addMaintenanceTask(input: any, bikeId: string) {
+  addMaintenanceTask(input: MaintenanceLogInput, bikeId: string) {
     const maintenanceItem = appState.currentMaintenanceItem;
 
     const selectedBike = bikeStore.getBike(bikeId);
     if (!selectedBike) throw new Error('No bike selected');
 
+    if (!input.odo || !input.date) return;
+
     if (!input.date.trim()) throw new Error('Date is required');
-    if (!Number.isFinite(Number(input.odo)) || Number(input.odo) < 0) {
+    if (!Number.isFinite(input.odo) || input.odo < 0) {
       throw new Error('Invalid odometer');
     }
 
@@ -72,10 +86,7 @@ export const maintenanceStore = {
     }));
   },
 
-  updateMaintenanceTask(
-    id: string,
-    patch: Partial<Omit<Maintenance, 'id' | 'bikeId' | 'name'>>,
-  ) {
+  updateMaintenanceTask(id: string, patch: MaintenanceLogPatch) {
     const current = getState().maintenance.find((m) => m.id === id);
     if (!current) throw new Error('Maintenance task not found');
 
@@ -206,9 +217,7 @@ export const maintenanceStore = {
   scheduleTask(
     bikeId: string,
     currentTask: string,
-    patch: Partial<
-      Omit<Maintenance, 'id' | 'bikeId' | 'name' | 'odo' | 'date'>
-    >,
+    patch: MaintenanceSchedulePatch,
   ) {
     const current = getState().maintenance.find((item) => {
       return item.bikeId === bikeId && item.name === currentTask;
@@ -247,30 +256,4 @@ export const maintenanceStore = {
 
     return next;
   },
-
-  // scheduleTask(
-  //   id: string,
-  //   currentTask: string,
-  //   patch: Partial<
-  //     Omit<Maintenance, 'id' | 'bikeId' | 'name' | 'odo' | 'date'>
-  //   >,
-  // ) {
-  //   const current = getState().maintenance.find((log) => {
-  //     return log.bikeId === id && log.name === currentTask;
-  //   });
-
-  //   if (!current) throw new Error('Maintenance task not found');
-
-  //   const next: Maintenance = {
-  //     ...current,
-  //     ...patch,
-  //   };
-
-  //   updateState((prev) => ({
-  //     ...prev,
-  //     maintenance: prev.maintenance.map((m) =>
-  //       m.id === current.id ? next : m,
-  //     ),
-  //   }));
-  // },
 };

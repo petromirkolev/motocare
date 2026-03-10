@@ -3,5 +3,7 @@ export type MaintenanceLog = {
   bikeId: string;
   name: string | undefined;
   date: string | null;
-  odo: string | null;
+  odo: number | null;
+  intervalKm: number | null;
+  intervalDays: number | null;
 };

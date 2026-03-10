@@ -1,7 +1,8 @@
 import { bikeStore } from '../state/bikeStore';
+import type { Maintenance } from '../types/maintenance';
 
 export function checkOverdueStatus(
-  item: any,
+  item: Maintenance,
   selectedBike: string,
   today: string,
 ) {

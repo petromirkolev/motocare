@@ -1,6 +1,11 @@
 import { bikeStore } from '../state/bikeStore';
+import type { Maintenance } from '../types/maintenance';
 
-export function checkDueStatus(item: any, selectedBike: string, today: string) {
+export function checkDueStatus(
+  item: Maintenance,
+  selectedBike: string,
+  today: string,
+) {
   if (item.bikeId !== selectedBike) return;
   if (!item.date) return;
 

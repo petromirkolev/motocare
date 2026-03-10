@@ -47,7 +47,7 @@ export const render = {
     showScreen('bikeEdit');
   },
 
-  openServiceModal(target: any): void {
+  openServiceModal(target: string): void {
     if (target === 'log.service')
       dom.maintenanceModal?.classList.remove('is-hidden');
 

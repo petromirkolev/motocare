@@ -5,14 +5,14 @@ import { getState, updateState, setState, newId } from './stateStorage';
 export function readBikeForm(form: HTMLFormElement) {
   const fd = new FormData(form);
 
-  const make = String(fd.get('make') ?? '').trim();
-  const model = String(fd.get('model') ?? '').trim();
+  const make: string = String(fd.get('make') ?? '').trim();
+  const model: string = String(fd.get('model') ?? '').trim();
 
-  const yearRaw = String(fd.get('year') ?? '').trim();
-  const year = Number(yearRaw);
+  const yearRaw: string = String(fd.get('year') ?? '').trim();
+  const year: number = Number(yearRaw);
 
-  const odoRaw = String(fd.get('odo') ?? '').trim();
-  const odo = Number(odoRaw);
+  const odoRaw: string = String(fd.get('odo') ?? '').trim();
+  const odo: number = Number(odoRaw);
 
   if (!make) throw new Error('Make is required');
   if (!model) throw new Error('Model is required');
@@ -57,7 +57,7 @@ export const bikeStore = {
     return bike;
   },
 
-  deleteBike(id: string | undefined) {
+  deleteBike(id: string) {
     if (!id) return;
 
     updateState((prev) => ({

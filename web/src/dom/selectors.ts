@@ -4,7 +4,7 @@ export const dom = {
   userEmail: document.querySelector<HTMLElement>('[data-testid="user-email"]'),
 
   // buttons
-  button: document.querySelector('.btn--primary'),
+  button: document.querySelector<HTMLButtonElement>('.btn--primary'),
 
   // login screen inputs
   loginEmailInput: document.querySelector<HTMLInputElement>(
@@ -98,7 +98,7 @@ export const dom = {
   maintenanceBikeOdo: document.querySelector<HTMLElement>(
     '[data-testid="bike-odometer"]',
   ),
-  maintenanceBikeEdit: document.querySelector<HTMLElement>(
+  maintenanceBikeEdit: document.querySelector<HTMLButtonElement>(
     '[data-testid="btn-edit-bike"]',
   ),
 
@@ -119,12 +119,16 @@ export const dom = {
   ),
 
   // maintenance stats
-  maintenanceOnTrack: document.querySelector('[data-testid="stat-ok-count"]'),
-  maintenanceDueSoon: document.querySelector(
+  maintenanceOnTrack: document.querySelector<HTMLElement>(
+    '[data-testid="stat-ok-count"]',
+  ),
+  maintenanceDueSoon: document.querySelector<HTMLElement>(
     '[data-testid="stat-dueSoon-count"]',
   ),
-  maintenanceOverdue: document.querySelector(
+  maintenanceOverdue: document.querySelector<HTMLElement>(
     '[data-testid="stat-overdue-count"]',
   ),
-  maintenanceHistory: document.querySelector('[data-testid="history-empty"]'),
+  maintenanceHistory: document.querySelector<HTMLElement>(
+    '[data-testid="history-empty"]',
+  ),
 };

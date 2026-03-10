@@ -35,7 +35,7 @@ function bindEvents(): void {
 
     if (!el) return;
 
-    const action = el.dataset.action as Action | undefined;
+    const action = el.dataset.action as Action;
 
     console.log(action);
 
@@ -214,12 +214,18 @@ function bindEvents(): void {
         const currentTask = appState.currentMaintenanceItem;
         if (!currentTask) throw new Error('No maintenance item selected');
 
-        maintenanceStore.scheduleTask(bikeId, currentTask, input);
+        const patch = {
+          intervalDays:
+            input.intervalDays !== null ? Number(input.intervalDays) : null,
+          intervalKm:
+            input.intervalKm !== null ? Number(input.intervalKm) : null,
+        };
+
+        maintenanceStore.scheduleTask(bikeId, currentTask, patch);
         maintenanceStore.updateTaskInfo(bikeId);
         maintenanceStore.updateOverallProgress(dom);
         render.closeServiceModal();
         form.reset();
-
         break;
       }
     }
