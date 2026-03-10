@@ -36,6 +36,7 @@ function bindEvents(): void {
     if (!el) return;
 
     const action = el.dataset.action as Action | undefined;
+
     console.log(action);
 
     if (!action) return;

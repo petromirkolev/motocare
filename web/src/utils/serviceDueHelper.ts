@@ -1,5 +1,6 @@
-export function checkDueStatus(item: any) {
+export function checkDueStatus(item: any, selectedBike: any) {
   if (!item.intervalDays || !item.date) return;
+  if (item.bikeId !== selectedBike) return;
 
   const nextDate: any = new Date(item.date);
   nextDate.setDate(nextDate.getDate() + Number(item.intervalDays));

@@ -9,6 +9,7 @@ export function checkOverdueStatus(
 
   const bike = bikeStore.getBike(selectedBike);
   if (!bike) return;
+  if (item.bikeId !== selectedBike) return;
 
   const nextDate: any = new Date(item.date);
   nextDate.setDate(nextDate.getDate() + Number(item.intervalDays));

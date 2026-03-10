@@ -1,3 +1,3 @@
-export function checkServiceItemsStatus(item: any) {
-  return item;
+export function checkServiceItemsStatus(item: any, selectedBike: any) {
+  if (item.bikeId === selectedBike) return item;
 }

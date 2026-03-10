@@ -53,6 +53,8 @@ export const maintenanceStore = {
       throw new Error('Invalid odometer');
     }
 
+    console.log(input);
+
     const currentMaintenanceItem: Maintenance = {
       id: newId(),
       bikeId: selectedBike?.id,
@@ -129,29 +131,32 @@ export const maintenanceStore = {
 
       dueVal.textContent =
         task.intervalDays && task.intervalKm !== null
-          ? `On ${nextDate.toISOString().slice(0, 10)} or ${task.intervalKm} km.`
+          ? `On ${nextDate.toISOString().slice(0, 10)} or at ${Number(task.intervalKm) + Number(task.odo)} km.`
           : 'Not done yet';
     });
   },
 
   updateOverallProgress(dom: any) {
     const items = getState();
+
     const selectedBike = appState.selectedBikeId;
+    if (!selectedBike) return;
+
     const today = new Date().toISOString().slice(0, 10);
     const lastServicedItem = items.maintenanceLog.find(
       (item) => item.bikeId === selectedBike,
     );
 
-    const totalDueItems = items.maintenance.filter((item) =>
-      checkDueStatus(item),
+    const totalServiceItems = items.maintenance.filter((item) =>
+      checkServiceItemsStatus(item, selectedBike),
     );
 
-    const totalServiceItems = items.maintenance.filter((item) =>
-      checkServiceItemsStatus(item),
+    const totalDueItems = items.maintenance.filter((item) =>
+      checkDueStatus(item, selectedBike),
     );
 
     const totalOverdueItems = items.maintenance.filter((item) =>
-      checkOverdueStatus(item, selectedBike!, today),
+      checkOverdueStatus(item, selectedBike, today),
     );
 
     // Update "Recent History"

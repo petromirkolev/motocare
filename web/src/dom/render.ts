@@ -24,7 +24,9 @@ export const render = {
 
     req(dom.userEmail, 'userEmail').textContent = 'Hello, {user}!';
     req(dom.garageCount, 'garageCount').textContent =
-      `${bikes.length} motorcycles`;
+      bikes.length > 1 || bikes.length === 0
+        ? `${bikes.length} motorcycles`
+        : `${bikes.length} motorcycle`;
 
     bikes.forEach((bike) => grid.appendChild(createBikeCard(bike)));
 
