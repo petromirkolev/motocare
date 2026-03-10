@@ -115,6 +115,18 @@ export const maintenanceStore = {
         task.date && task.odo !== null
           ? `On ${task.date} at ${task.odo} km.`
           : 'Never logged';
+
+      if (!task.date) {
+        throw new Error('Missing lastDate');
+      }
+
+      const nextDate = new Date(task.date);
+      nextDate.setDate(nextDate.getDate() + 365);
+
+      dueVal.textContent =
+        task.nextDate && task.nextOdo !== null
+          ? `On ${nextDate.toISOString().slice(0, 10)} or ${task.nextOdo} km.`
+          : 'Not done yet';
     });
   },
 

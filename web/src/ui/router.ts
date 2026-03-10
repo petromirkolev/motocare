@@ -217,10 +217,6 @@ function bindEvents(): void {
 
         maintenanceStore.scheduleTask(bikeId, currentTask, input);
 
-        console.log('submitted');
-
-        // maintenanceStore.updateTaskInfo(bikeId);
-        // maintenanceStore.updateOverallProgress(dom);
         render.closeServiceModal();
         form.reset();
 
