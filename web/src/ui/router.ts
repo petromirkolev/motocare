@@ -3,7 +3,7 @@
 
 import { render } from '../dom/render';
 import { dom } from '../dom/selectors';
-import { req } from '../utils/domHelper';
+import { req } from '../utils/dom-helper';
 import { bikeStore, readBikeForm } from '../state/bike-store';
 import { appState } from '../types/state';
 import {
@@ -41,19 +41,23 @@ type Action =
 function bindEvents(): void {
   document.addEventListener('click', async (e: MouseEvent) => {
     const target = e.target as HTMLElement;
-    const el = target.closest<HTMLElement>('[data-action]');
 
+    const el = target.closest<HTMLElement>('[data-action]');
     if (!el) return;
 
     const action = el.dataset.action as Action;
-
     if (!action) return;
 
-    switch (action) {
-      case 'auth.login': {
-        const loginForm = dom.loginForm as HTMLFormElement;
+    console.log(action);
 
+    switch (action) {
+      case 'nav.login':
+        render.initialScreen();
+        break;
+
+      case 'auth.login': {
         try {
+          const loginForm = dom.loginForm as HTMLFormElement;
           const input = readLoginForm(loginForm);
           const response = await loginUser(input.email, input.password);
 
@@ -62,17 +66,12 @@ function bindEvents(): void {
           loginForm?.reset();
           render.garageScreen();
         } catch (error) {
-          alert(
-            error instanceof Error ? error.message : 'Something went wrong',
-          );
+          error instanceof Error
+            ? render.errorMessage(error.message, action)
+            : render.errorMessage('Something went wrong', action);
         }
-
         break;
       }
-
-      case 'nav.garage':
-        render.garageScreen();
-        break;
 
       case 'nav.register':
         const loginForm = dom.loginForm as HTMLFormElement;
@@ -81,27 +80,29 @@ function bindEvents(): void {
         break;
 
       case 'auth.register': {
-        const regForm = dom.regForm as HTMLFormElement;
-
         try {
+          const regForm = dom.regForm as HTMLFormElement;
           const input = readRegForm(regForm);
           await registerUser(input.email, input.password);
-
           alert('Registration successful!');
           regForm?.reset();
           render.initialScreen();
         } catch (error) {
-          alert(
-            error instanceof Error ? error.message : 'Something went wrong',
-          );
+          error instanceof Error
+            ? render.errorMessage(error.message, action)
+            : render.errorMessage('Something went wrong', action);
         }
-
         break;
       }
 
       case 'auth.logout':
-      case 'nav.login':
+        setCurrentUser(null);
+        render.errorMessage('', action);
         render.initialScreen();
+        break;
+
+      case 'nav.garage':
+        render.garageScreen();
         break;
 
       case 'nav.bikeAdd':
@@ -109,23 +110,31 @@ function bindEvents(): void {
         break;
 
       case 'bike.add.submit': {
-        const addBikeForm = (dom.addBikeForm as HTMLFormElement) || null;
-        const input = readBikeForm(addBikeForm);
+        try {
+          const addBikeForm = (dom.addBikeForm as HTMLFormElement) || null;
+          const input = readBikeForm(addBikeForm);
 
-        bikeStore.addBike(input);
-        addBikeForm.reset();
-        render.garageScreen();
+          bikeStore.addBike(input);
+          addBikeForm.reset();
+          render.garageScreen();
+        } catch (error) {
+          error instanceof Error
+            ? render.errorMessage(error.message, action)
+            : render.errorMessage('Something went wrong', action);
+        }
         break;
       }
 
       case 'bike.delete':
-        const el = target.closest<HTMLElement>('[data-action]');
-        const id = el?.dataset.bikeId;
+        try {
+          const el = target.closest<HTMLElement>('[data-action]');
+          const id = el?.dataset.bikeId;
 
-        if (!id) break;
+          if (!id) break;
 
-        bikeStore.deleteBike(id);
-        render.garageScreen();
+          bikeStore.deleteBike(id);
+          render.garageScreen();
+        } catch (error) {}
         break;
 
       case 'bike.edit.open':
@@ -166,10 +175,17 @@ function bindEvents(): void {
         const id = idInput?.value?.trim();
         if (!id) throw new Error('Missing bike id for edit submit');
 
-        const form = readBikeForm(bikeEditForm);
-        bikeStore.updateBike(id, form);
-        bikeEditForm.reset();
-        render.garageScreen();
+        try {
+          const form = readBikeForm(bikeEditForm);
+          bikeStore.updateBike(id, form);
+          bikeEditForm.reset();
+          render.errorMessage('', action);
+          render.garageScreen();
+        } catch (error) {
+          error instanceof Error
+            ? render.errorMessage(error.message, action)
+            : render.errorMessage('Something went wrong', action);
+        }
         break;
       }
 
@@ -215,6 +231,38 @@ function bindEvents(): void {
         break;
       }
 
+      case 'log.submit': {
+        try {
+          const maintenanceForm =
+            (dom.logServiceForm as HTMLFormElement) || null;
+          const input = readMaintenanceLogForm(maintenanceForm);
+
+          const bikeId = appState.selectedBikeId;
+          const currentTask = appState.currentMaintenanceItem;
+
+          if (!bikeId) throw new Error('No bike selected');
+          if (!currentTask) throw new Error('No maintenance item selected');
+
+          const existingTask = getMaintenanceTask(bikeId, currentTask);
+
+          if (!existingTask) {
+            maintenanceStore.addMaintenanceTask(input, bikeId);
+          } else {
+            maintenanceStore.updateMaintenanceTask(existingTask.id, input);
+          }
+
+          maintenanceStore.updateTaskInfo(bikeId);
+          maintenanceStore.updateOverallProgress(dom);
+          maintenanceForm.reset();
+          render.closeServiceModal();
+        } catch (error) {
+          error instanceof Error
+            ? render.errorMessage(error.message, action)
+            : render.errorMessage('Something went wrong', action);
+        }
+        break;
+      }
+
       case 'schedule.service': {
         const maintenanceItem =
           target.closest<HTMLElement>('[data-action]')?.parentElement
@@ -225,59 +273,40 @@ function bindEvents(): void {
         break;
       }
 
+      case 'schedule.submit': {
+        try {
+          const scheduleForm =
+            (dom.scheduleServiceForm as HTMLFormElement) || null;
+          const input = readMaintenanceScheduleForm(scheduleForm);
+
+          const bikeId = appState.selectedBikeId;
+          if (!bikeId) throw new Error('No bike selected');
+
+          const currentTask = appState.currentMaintenanceItem;
+          if (!currentTask) throw new Error('No maintenance item selected');
+
+          const patch = {
+            intervalDays:
+              input.intervalDays !== null ? Number(input.intervalDays) : null,
+            intervalKm:
+              input.intervalKm !== null ? Number(input.intervalKm) : null,
+          };
+
+          maintenanceStore.scheduleTask(bikeId, currentTask, patch);
+          maintenanceStore.updateTaskInfo(bikeId);
+          maintenanceStore.updateOverallProgress(dom);
+          render.closeServiceModal();
+          scheduleForm.reset();
+        } catch (error) {
+          error instanceof Error
+            ? render.errorMessage(error.message, action)
+            : render.errorMessage('Something went wrong', action);
+        }
+        break;
+      }
+
       case 'modal.close': {
         render.closeServiceModal();
-        break;
-      }
-
-      case 'log.submit': {
-        const maintenanceForm = (dom.logServiceForm as HTMLFormElement) || null;
-        const input = readMaintenanceLogForm(maintenanceForm);
-
-        const bikeId = appState.selectedBikeId;
-        const currentTask = appState.currentMaintenanceItem;
-
-        if (!bikeId) throw new Error('No bike selected');
-        if (!currentTask) throw new Error('No maintenance item selected');
-
-        const existingTask = getMaintenanceTask(bikeId, currentTask);
-
-        if (!existingTask) {
-          maintenanceStore.addMaintenanceTask(input, bikeId);
-        } else {
-          maintenanceStore.updateMaintenanceTask(existingTask.id, input);
-        }
-
-        maintenanceStore.updateTaskInfo(bikeId);
-        maintenanceStore.updateOverallProgress(dom);
-        maintenanceForm.reset();
-        render.closeServiceModal();
-        break;
-      }
-
-      case 'schedule.submit': {
-        const scheduleForm =
-          (dom.scheduleServiceForm as HTMLFormElement) || null;
-        const input = readMaintenanceScheduleForm(scheduleForm);
-
-        const bikeId = appState.selectedBikeId;
-        if (!bikeId) throw new Error('No bike selected');
-
-        const currentTask = appState.currentMaintenanceItem;
-        if (!currentTask) throw new Error('No maintenance item selected');
-
-        const patch = {
-          intervalDays:
-            input.intervalDays !== null ? Number(input.intervalDays) : null,
-          intervalKm:
-            input.intervalKm !== null ? Number(input.intervalKm) : null,
-        };
-
-        maintenanceStore.scheduleTask(bikeId, currentTask, patch);
-        maintenanceStore.updateTaskInfo(bikeId);
-        maintenanceStore.updateOverallProgress(dom);
-        render.closeServiceModal();
-        scheduleForm.reset();
         break;
       }
     }

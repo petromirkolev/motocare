@@ -7,15 +7,17 @@ import { dom } from './selectors';
 import { bikeStore } from '../state/bike-store';
 import { createBikeCard } from '../ui/createBikeCard';
 import { showScreen } from '../ui/showScreen';
-import { req } from '../utils/domHelper';
+import { req } from '../utils/dom-helper';
 import { getCurrentUser } from '../state/auth-state';
 
 export const render = {
   initialScreen(): void {
+    this.errorMessage('', 'nav.login');
     showScreen('login');
   },
 
   registerScreen(): void {
+    this.errorMessage('', 'nav.register');
     showScreen('register');
   },
 
@@ -66,5 +68,42 @@ export const render = {
   closeServiceModal(): void {
     dom.maintenanceModal?.classList.add('is-hidden');
     dom.maintenanceScheduleModal?.classList.add('is-hidden');
+  },
+
+  errorMessage(message: string = '', action: string = '') {
+    switch (action) {
+      case 'nav.login':
+      case 'auth.login':
+      case 'auth.logout':
+        dom.loginHint!.textContent = message;
+        break;
+
+      case 'nav.register':
+        dom.regHint!.textContent = message;
+        break;
+
+      case 'auth.register':
+        dom.regHint!.textContent = message;
+        break;
+
+      case 'bike.add.submit':
+        dom.addHint!.textContent = message;
+        break;
+
+      case 'bike.edit.submit':
+        dom.editBikeHint!.textContent = message;
+        break;
+
+      case 'log.submit':
+        dom.logServiceHint!.textContent = message;
+        break;
+
+      case 'schedule.submit':
+        dom.scheduleServiceHint!.textContent = message;
+        break;
+
+      default:
+        break;
+    }
   },
 };

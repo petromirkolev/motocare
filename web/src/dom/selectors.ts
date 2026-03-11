@@ -12,6 +12,7 @@ export const dom = {
   loginForm: document.querySelector<HTMLFormElement>(
     '[data-testid="login-form"]',
   ),
+  loginHint: document.querySelector<HTMLElement>('[data-testid="login-hint"]'),
 
   /** Login screen inputs */
   loginEmailInput: document.querySelector<HTMLInputElement>(
@@ -25,6 +26,7 @@ export const dom = {
   regForm: document.querySelector<HTMLFormElement>(
     '[data-testid="register-form"]',
   ),
+  regHint: document.querySelector<HTMLElement>('[data-testid="reg-hint"]'),
 
   /** Register screen inputs */
   regEmailInput: document.querySelector<HTMLInputElement>(
@@ -79,7 +81,7 @@ export const dom = {
   addBikeForm: document.querySelector<HTMLFormElement>(
     '[data-testid="add-bike-form"]',
   ),
-  addHind: document.querySelector('[data-testid="add-hint"]'),
+  addHint: document.querySelector('[data-testid="add-hint"]'),
 
   /** Edit bike form */
   editBikeForm: document.querySelector<HTMLElement>(
@@ -91,7 +93,7 @@ export const dom = {
   editBikeModel: document.querySelector<HTMLInputElement>('#editBikeModel'),
   editBikeOdo: document.querySelector<HTMLInputElement>('#editBikeOdo'),
   editBikeHint: document.querySelector<HTMLElement>(
-    '[data-testid="edit-hint"]',
+    '[data-testid="edit-bike-hint"]',
   ),
 
   /** Maintenance header */
@@ -126,8 +128,16 @@ export const dom = {
   logServiceForm: document.querySelector<HTMLFormElement>(
     '[data-testid="log-form"]',
   ),
+  logServiceHint: document.querySelector<HTMLElement>(
+    '[data-testid="log-hint"]',
+  ),
+
+  /** Maintenance > Schedule service */
   scheduleServiceForm: document.querySelector<HTMLFormElement>(
     '[data-testid="schedule-form"]',
+  ),
+  scheduleServiceHint: document.querySelector<HTMLElement>(
+    '[data-testid="schedule-hint"]',
   ),
 
   /** Maintenance stats */
