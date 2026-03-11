@@ -1,0 +1,17 @@
+export type AuthSuccessUser = {
+  id: string;
+  email: string;
+};
+
+export type LoginResponse = {
+  message: string;
+  user: AuthSuccessUser;
+};
+
+export type RegisterResponse = {
+  message: string;
+};
+
+export type ErrorResponse = {
+  error: string;
+};
