@@ -11,11 +11,18 @@ import {
   maintenanceStore,
   readMaintenanceLogForm,
   readMaintenanceScheduleForm,
-} from '../state/maintenanceStore';
+} from '../state/maintenance-store';
+import {
+  readLoginForm,
+  readRegForm,
+  setCurrentUser,
+} from '../state/auth-state';
+import { loginUser, registerUser } from '../api/auth';
 
 type Action =
   | 'auth.login'
   | 'auth.logout'
+  | 'auth.register'
   | 'nav.login'
   | 'nav.register'
   | 'nav.garage'
@@ -32,7 +39,7 @@ type Action =
   | 'log.submit';
 
 function bindEvents(): void {
-  document.addEventListener('click', (e: MouseEvent) => {
+  document.addEventListener('click', async (e: MouseEvent) => {
     const target = e.target as HTMLElement;
     const el = target.closest<HTMLElement>('[data-action]');
 
@@ -43,7 +50,25 @@ function bindEvents(): void {
     if (!action) return;
 
     switch (action) {
-      case 'auth.login':
+      case 'auth.login': {
+        const loginForm = dom.loginForm as HTMLFormElement;
+
+        try {
+          const input = readLoginForm(loginForm);
+          const response = await loginUser(input.email, input.password);
+
+          setCurrentUser(response.user);
+          loginForm?.reset();
+          render.garageScreen();
+        } catch (error) {
+          alert(
+            error instanceof Error ? error.message : 'Something went wrong',
+          );
+        }
+
+        break;
+      }
+
       case 'nav.garage':
         render.garageScreen();
         break;
@@ -51,6 +76,25 @@ function bindEvents(): void {
       case 'nav.register':
         render.registerScreen();
         break;
+
+      case 'auth.register': {
+        const regForm = dom.regForm as HTMLFormElement;
+
+        try {
+          const input = readRegForm(regForm);
+          await registerUser(input.email, input.password);
+
+          alert('Registration successful!');
+          regForm?.reset();
+          render.initialScreen();
+        } catch (error) {
+          alert(
+            error instanceof Error ? error.message : 'Something went wrong',
+          );
+        }
+
+        break;
+      }
 
       case 'auth.logout':
       case 'nav.login':
@@ -62,11 +106,11 @@ function bindEvents(): void {
         break;
 
       case 'bike.add.submit': {
-        const form = (dom.addBikeForm as HTMLFormElement) || null;
-        const input = readBikeForm(form);
+        const addBikeForm = (dom.addBikeForm as HTMLFormElement) || null;
+        const input = readBikeForm(addBikeForm);
 
         bikeStore.addBike(input);
-        form.reset();
+        addBikeForm.reset();
         render.garageScreen();
         break;
       }
@@ -112,16 +156,16 @@ function bindEvents(): void {
         break;
 
       case 'bike.edit.submit': {
-        const editForm = dom.editBikeForm as HTMLFormElement | null;
-        if (!editForm) throw new Error('Missing edit bike form');
+        const bikeEditForm = dom.editBikeForm as HTMLFormElement | null;
+        if (!bikeEditForm) throw new Error('Missing edit bike form');
 
         const idInput = dom.editBikeId as HTMLInputElement | null;
         const id = idInput?.value?.trim();
         if (!id) throw new Error('Missing bike id for edit submit');
 
-        const form = readBikeForm(editForm);
+        const form = readBikeForm(bikeEditForm);
         bikeStore.updateBike(id, form);
-        editForm.reset();
+        bikeEditForm.reset();
         render.garageScreen();
         break;
       }
@@ -184,8 +228,8 @@ function bindEvents(): void {
       }
 
       case 'log.submit': {
-        const form = (dom.logServiceForm as HTMLFormElement) || null;
-        const input = readMaintenanceLogForm(form);
+        const maintenanceForm = (dom.logServiceForm as HTMLFormElement) || null;
+        const input = readMaintenanceLogForm(maintenanceForm);
 
         const bikeId = appState.selectedBikeId;
         const currentTask = appState.currentMaintenanceItem;
@@ -203,14 +247,15 @@ function bindEvents(): void {
 
         maintenanceStore.updateTaskInfo(bikeId);
         maintenanceStore.updateOverallProgress(dom);
-        form.reset();
+        maintenanceForm.reset();
         render.closeServiceModal();
         break;
       }
 
       case 'schedule.submit': {
-        const form = (dom.scheduleServiceForm as HTMLFormElement) || null;
-        const input = readMaintenanceScheduleForm(form);
+        const scheduleForm =
+          (dom.scheduleServiceForm as HTMLFormElement) || null;
+        const input = readMaintenanceScheduleForm(scheduleForm);
 
         const bikeId = appState.selectedBikeId;
         if (!bikeId) throw new Error('No bike selected');
@@ -229,7 +274,7 @@ function bindEvents(): void {
         maintenanceStore.updateTaskInfo(bikeId);
         maintenanceStore.updateOverallProgress(dom);
         render.closeServiceModal();
-        form.reset();
+        scheduleForm.reset();
         break;
       }
     }

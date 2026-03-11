@@ -8,12 +8,22 @@ export const dom = {
   /** Buttons */
   button: document.querySelector<HTMLButtonElement>('.btn--primary'),
 
+  /** Login form */
+  loginForm: document.querySelector<HTMLFormElement>(
+    '[data-testid="login-form"]',
+  ),
+
   /** Login screen inputs */
   loginEmailInput: document.querySelector<HTMLInputElement>(
     '[data-testid="login-email"]',
   ),
   loginPassInput: document.querySelector<HTMLInputElement>(
     '[data-testid="login-password"]',
+  ),
+
+  /** Register form */
+  regForm: document.querySelector<HTMLFormElement>(
+    '[data-testid="register-form"]',
   ),
 
   /** Register screen inputs */
