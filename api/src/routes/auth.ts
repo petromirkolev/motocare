@@ -1,100 +1,85 @@
+import { Router } from 'express';
+import {
+  INTERNAL_SERVER_ERROR,
+  INVALID_CREDENTIALS_ERROR,
+  LOGIN_SUCCESS_MESSAGE,
+  MISSING_AUTH_FIELDS_ERROR,
+  REGISTER_SUCCESS_MESSAGE,
+  USER_ALREADY_EXISTS_ERROR,
+} from '../constants/auth';
 import {
   createUser,
   findUserByEmail,
   verifyUserPassword,
 } from '../services/auth-service';
-import { Router } from 'express';
 import { AuthBody } from '../types/auth-body';
+import { sendAuthError } from '../utils/auth-response';
+import { sendLoginSuccess, sendRegisterSuccess } from '../utils/auth-success';
 import { getValidatedAuthBody } from '../utils/auth-validation';
-
-const INVALID_CREDENTIALS_ERROR = 'Invalid credentials';
-
-type UserRow = {
-  id: string;
-  email: string;
-  password_hash: string;
-  created_at: string;
-};
 
 const authRouter = Router();
 
-/* Register endpoint */
 authRouter.post('/register', async (req, res) => {
   const validatedBody = getValidatedAuthBody((req.body ?? {}) as AuthBody);
 
   if (!validatedBody) {
-    res.status(400).json({ error: 'Email and password are required' });
+    sendAuthError(res, 400, MISSING_AUTH_FIELDS_ERROR);
     return;
   }
 
   const { email, password } = validatedBody;
 
   try {
-    const existingUser = await getOne<UserRow>(
-      'SELECT * FROM users WHERE email = ?',
-      [email],
-    );
+    const existingUser = await findUserByEmail(email);
 
     if (existingUser) {
-      res.status(409).json({ error: 'User already exists' });
+      sendAuthError(res, 409, USER_ALREADY_EXISTS_ERROR);
       return;
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    await runQuery(
-      `
-        INSERT INTO users (id, email, password_hash, created_at)
-        VALUES (?, ?, ?, ?)
-      `,
-      [uuidv4(), email, passwordHash, new Date().toISOString()],
-    );
-
-    res.status(201).json({ message: 'User registered successfully' });
+    await createUser(email, password);
+    sendRegisterSuccess(res, REGISTER_SUCCESS_MESSAGE);
   } catch (error) {
     console.error('Register failed:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    sendAuthError(res, 500, INTERNAL_SERVER_ERROR);
   }
 });
 
-/* Login endpoint */
 authRouter.post('/login', async (req, res) => {
   const validatedBody = getValidatedAuthBody((req.body ?? {}) as AuthBody);
 
   if (!validatedBody) {
-    res.status(400).json({ error: 'Email and password are required' });
+    sendAuthError(res, 400, MISSING_AUTH_FIELDS_ERROR);
     return;
   }
 
   const { email, password } = validatedBody;
 
   try {
-    const user = await getOne<UserRow>('SELECT * FROM users WHERE email = ?', [
-      email,
-    ]);
+    const user = await findUserByEmail(email);
 
     if (!user) {
-      res.status(401).json({ error: INVALID_CREDENTIALS_ERROR });
+      sendAuthError(res, 401, INVALID_CREDENTIALS_ERROR);
       return;
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    const isPasswordValid = await verifyUserPassword(
+      password,
+      user.password_hash,
+    );
 
     if (!isPasswordValid) {
-      res.status(401).json({ error: INVALID_CREDENTIALS_ERROR });
+      sendAuthError(res, 401, INVALID_CREDENTIALS_ERROR);
       return;
     }
 
-    res.json({
-      message: 'Login successful',
-      user: {
-        id: user.id,
-        email: user.email,
-      },
+    sendLoginSuccess(res, LOGIN_SUCCESS_MESSAGE, {
+      id: user.id,
+      email: user.email,
     });
   } catch (error) {
     console.error('Login failed:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    sendAuthError(res, 500, INTERNAL_SERVER_ERROR);
   }
 });
 
