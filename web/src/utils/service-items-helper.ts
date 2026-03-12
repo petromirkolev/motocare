@@ -6,6 +6,6 @@ export function checkServiceItemsStatus(
   item: Maintenance,
   selectedBike: string,
 ) {
-  if (item.date !== null && item.odo !== null && item.bikeId === selectedBike)
+  if (item.date !== null && item.odo !== null && item.bike_id === selectedBike)
     return item;
 }

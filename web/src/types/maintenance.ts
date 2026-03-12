@@ -2,12 +2,12 @@
 
 export type Maintenance = {
   id: string;
-  bikeId: string;
+  bike_id: string;
   name: string;
   date: string | null;
   odo: number | null;
-  intervalKm: number | null;
-  intervalDays: number | null;
+  interval_km: number | null;
+  interval_days: number | null;
 };
 
 export type MaintenanceLogInput = {
@@ -16,8 +16,8 @@ export type MaintenanceLogInput = {
 };
 
 export type MaintenanceScheduleInput = {
-  intervalDays: string | null;
-  intervalKm: number | null;
+  interval_days: string | null;
+  interval_km: number | null;
 };
 
 export type MaintenanceLogPatch = Partial<

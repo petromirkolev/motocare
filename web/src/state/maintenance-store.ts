@@ -1,109 +1,48 @@
-/* Maintenance store manages the maintenance tasks and logs for each bike. It provides functions to add new maintenance logs, update existing ones, and schedule future maintenance tasks. The store also includes logic to calculate due dates and mark tasks as due or overdue based on the last service date and the defined intervals. It interacts with the bike store to ensure that maintenance records are associated with the correct bike. */
+/* Maintenance store manages the maintenance tasks and logs for each bike. */
 
 import type {
   Maintenance,
   MaintenanceLogInput,
-  MaintenanceLogPatch,
   MaintenanceScheduleInput,
-  MaintenanceSchedulePatch,
 } from '../types/maintenance';
-import type { MaintenanceLog } from '../types/maintenance-log';
-import { getState, updateState, newId } from './state-storage';
-import { bikeStore } from './bike-store';
+import { getState } from './state-storage';
 import { appState } from '../types/state';
 import { checkDueStatus } from '../utils/service-due-helper';
 import { checkOverdueStatus } from '../utils/service-overdue-helper';
 import { checkServiceItemsStatus } from '../utils/service-items-helper';
 import { markDueTasks, markOverdueTasks } from '../utils/dom-helper';
 
-export function readMaintenanceLogForm(
-  form: HTMLFormElement,
-): MaintenanceLogInput {
-  const fd = new FormData(form);
-
-  const date: string = String(fd.get('doneAt') ?? '').trim();
-  const odoRaw: string = String(fd.get('odo') ?? '').trim();
-  const odo = Number(odoRaw);
-
-  if (!date) throw new Error('Date is required');
-  if (!odo) throw new Error('Odo is required');
-
-  return { date, odo };
-}
-
-export function readMaintenanceScheduleForm(
-  form: HTMLFormElement,
-): MaintenanceScheduleInput {
-  const fd = new FormData(form);
-
-  const intervalDays: string = String(fd.get('intervalDays') ?? '').trim();
-  const intervalKmRaw: string = String(fd.get('intervalKm') ?? '').trim();
-  const intervalKm = Number(intervalKmRaw);
-
-  if (!intervalDays) throw new Error('Interval days are required');
-  if (!intervalKm) throw new Error('Interval kilometers are required');
-
-  return { intervalDays, intervalKm };
-}
-
-export function getMaintenanceTask(
-  bikeId: string,
-  name: string,
-): Maintenance | undefined {
-  return getState().maintenance.find(
-    (a) => a.bikeId === bikeId && a.name === name,
-  );
-}
-
 export const maintenanceStore = {
-  addMaintenanceTask(input: MaintenanceLogInput, bikeId: string) {
-    const maintenanceItem = appState.currentMaintenanceItem;
+  readMaintenanceLogForm(form: HTMLFormElement): MaintenanceLogInput {
+    const fd = new FormData(form);
 
-    const selectedBike = bikeStore.getBike(bikeId);
-    if (!selectedBike) throw new Error('No bike selected');
+    const date: string = String(fd.get('doneAt') ?? '').trim();
+    const odoRaw: string = String(fd.get('odo') ?? '').trim();
+    const odo = Number(odoRaw);
 
-    if (!input.odo || !input.date) return;
+    if (!date) throw new Error('Date is required');
+    if (!odo) throw new Error('Odo is required');
 
-    if (!input.date.trim()) throw new Error('Date is required');
-    if (!Number.isFinite(input.odo) || input.odo < 0) {
-      throw new Error('Invalid odometer');
-    }
-
-    const currentMaintenanceItem: Maintenance = {
-      id: newId(),
-      bikeId: selectedBike?.id,
-      name: maintenanceItem,
-      odo: input.odo,
-      date: input.date,
-      intervalKm: null,
-      intervalDays: null,
-    };
-
-    const currentMaintenanceLog: MaintenanceLog = currentMaintenanceItem;
-
-    updateState((prev) => ({
-      ...prev,
-      maintenance: [currentMaintenanceItem, ...prev.maintenance],
-      maintenanceLog: [currentMaintenanceLog, ...prev.maintenanceLog],
-    }));
+    return { date, odo };
   },
 
-  updateMaintenanceTask(id: string, patch: MaintenanceLogPatch) {
-    const current = getState().maintenance.find((m) => m.id === id);
-    if (!current) throw new Error('Maintenance task not found');
+  readMaintenanceScheduleForm(form: HTMLFormElement): MaintenanceScheduleInput {
+    const fd = new FormData(form);
 
-    const next: Maintenance = {
-      ...current,
-      ...patch,
-    };
+    const interval_days: string = String(fd.get('interval_days') ?? '').trim();
+    const interval_kmRaw: string = String(fd.get('interval_km') ?? '').trim();
+    const interval_km = Number(interval_kmRaw);
 
-    const currentMaintenanceLog: MaintenanceLog = next;
+    if (!interval_days) throw new Error('Interval days are required');
+    if (!interval_km) throw new Error('Interval kilometers are required');
 
-    updateState((prev) => ({
-      ...prev,
-      maintenance: prev.maintenance.map((m) => (m.id === id ? next : m)),
-      maintenanceLog: [currentMaintenanceLog, ...prev.maintenanceLog],
-    }));
+    return { interval_days, interval_km };
+  },
+
+  getMaintenanceTask(bikeId: string, name: string): Maintenance | undefined {
+    return getState().maintenance.find(
+      (a) => a.bike_id === bikeId && a.name === name,
+    );
   },
 
   updateTaskInfo(bikeId: string) {
@@ -122,7 +61,7 @@ export const maintenanceStore = {
 
       if (!lastVal || !dueVal) return;
 
-      const task = getMaintenanceTask(bikeId, taskName);
+      const task = this.getMaintenanceTask(bikeId, taskName);
 
       if (!task) {
         lastVal.textContent = 'Never logged';
@@ -137,12 +76,12 @@ export const maintenanceStore = {
       }
 
       if (!task.date || task.odo === null) {
-        if (task.intervalDays && task.intervalKm) {
-          dueVal.textContent = `Every ${task.intervalDays} days or ${task.intervalKm} km.`;
-        } else if (task.intervalDays) {
-          dueVal.textContent = `Every ${task.intervalDays} days.`;
-        } else if (task.intervalKm) {
-          dueVal.textContent = `Every ${task.intervalKm} km.`;
+        if (task.interval_days && task.interval_km) {
+          dueVal.textContent = `Every ${task.interval_days} days or ${task.interval_km} km.`;
+        } else if (task.interval_days) {
+          dueVal.textContent = `Every ${task.interval_days} days.`;
+        } else if (task.interval_km) {
+          dueVal.textContent = `Every ${task.interval_km} km.`;
         } else {
           dueVal.textContent = 'Not done yet';
         }
@@ -151,14 +90,14 @@ export const maintenanceStore = {
 
       const dueParts: string[] = [];
 
-      if (task.intervalDays) {
+      if (task.interval_days) {
         const nextDate = new Date(task.date);
-        nextDate.setDate(nextDate.getDate() + Number(task.intervalDays));
+        nextDate.setDate(nextDate.getDate() + Number(task.interval_days));
         dueParts.push(`On ${nextDate.toISOString().slice(0, 10)}`);
       }
 
-      if (task.intervalKm) {
-        dueParts.push(`at ${Number(task.intervalKm) + Number(task.odo)} km`);
+      if (task.interval_km) {
+        dueParts.push(`at ${Number(task.interval_km) + Number(task.odo)} km`);
       }
 
       dueVal.textContent =
@@ -174,7 +113,7 @@ export const maintenanceStore = {
 
     const today = new Date().toISOString().slice(0, 10);
     const lastServicedItem = items.maintenanceLog.find(
-      (item) => item.bikeId === selectedBike,
+      (item) => item.bike_id === selectedBike,
     );
 
     const totalServiceItems = items.maintenance.filter((item) =>
@@ -217,48 +156,5 @@ export const maintenanceStore = {
     /* Mark overdue tasks with red and due soon tasks with orange in the maintenance list. */
     markOverdueTasks(totalOverdueItems);
     markDueTasks(totalDueItems);
-  },
-
-  scheduleTask(
-    bikeId: string,
-    currentTask: string,
-    patch: MaintenanceSchedulePatch,
-  ) {
-    const current = getState().maintenance.find((item) => {
-      return item.bikeId === bikeId && item.name === currentTask;
-    });
-
-    if (!current) {
-      const created: Maintenance = {
-        id: newId(),
-        bikeId,
-        name: currentTask,
-        date: null,
-        odo: null,
-        intervalKm: patch.intervalKm ?? null,
-        intervalDays: patch.intervalDays ?? null,
-      };
-
-      updateState((prev) => ({
-        ...prev,
-        maintenance: [created, ...prev.maintenance],
-      }));
-
-      return created;
-    }
-
-    const next: Maintenance = {
-      ...current,
-      ...patch,
-    };
-
-    updateState((prev) => ({
-      ...prev,
-      maintenance: prev.maintenance.map((item) =>
-        item.id === current.id ? next : item,
-      ),
-    }));
-
-    return next;
   },
 };

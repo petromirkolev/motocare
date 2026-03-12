@@ -9,7 +9,7 @@ export function checkDueStatus(
   selectedBike: string,
   today: string,
 ) {
-  if (item.bikeId !== selectedBike) return;
+  if (item.bike_id !== selectedBike) return;
   if (!item.date) return;
 
   const bike = bikeStore.getBike(selectedBike);
@@ -20,8 +20,8 @@ export function checkDueStatus(
   let isOverdueByDate = false;
   let isOverdueByKm = false;
 
-  if (item.intervalDays) {
-    const intervalDays = Number(item.intervalDays);
+  if (item.interval_days) {
+    const intervalDays = Number(item.interval_days);
 
     const nextDate = new Date(item.date);
     nextDate.setDate(nextDate.getDate() + intervalDays);
@@ -34,8 +34,8 @@ export function checkDueStatus(
     isDueSoonByDate = dueDays >= 0 && dueDays <= 30 && dueDays < intervalDays;
   }
 
-  if (item.intervalKm) {
-    const intervalKm = Number(item.intervalKm);
+  if (item.interval_km) {
+    const intervalKm = Number(item.interval_km);
     const dueKm = Number(item.odo) + intervalKm;
     const kmRemaining = dueKm - Number(bike.odo);
 
