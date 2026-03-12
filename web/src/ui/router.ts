@@ -1,5 +1,4 @@
-/* Router module to handle navigation and user interactions in the Motorcycle Maintenance Assistant app. Listens for click events on elements with data-action attributes and triggers corresponding actions.
- */
+/* Router module to handle navigation and user interactions in the Motorcycle Maintenance Assistant app. */
 
 import { render } from '../dom/render';
 import { dom } from '../dom/selectors';
@@ -7,19 +6,15 @@ import { req } from '../utils/dom-helper';
 import { bikeStore, readBikeForm } from '../state/bike-store';
 import { createBikeApi, updateBikeApi, deleteBikeApi } from '../api/bikes';
 import { appState } from '../types/state';
-import {
-  getMaintenanceTask,
-  maintenanceStore,
-  readMaintenanceLogForm,
-  readMaintenanceScheduleForm,
-} from '../state/maintenance-store';
+import { maintenanceStore } from '../state/maintenance-store';
+import { refreshMaintenance, refreshBikes } from '../state/state-storage';
+import { upsertMaintenanceApi } from '../api/maintenance';
+import { loginUser, registerUser } from '../api/auth';
 import {
   readLoginForm,
   readRegForm,
   setCurrentUser,
 } from '../state/auth-state';
-import { loginUser, registerUser } from '../api/auth';
-import { refreshBikes } from '../state/state-storage';
 
 type Action =
   | 'auth.login'
@@ -244,6 +239,8 @@ function bindEvents(): void {
           appState.selectedBikeFound.odo,
         );
 
+        await refreshMaintenance(appState.selectedBikeId);
+
         maintenanceStore.updateTaskInfo(appState.selectedBikeId);
         maintenanceStore.updateOverallProgress(dom);
         break;
@@ -262,26 +259,35 @@ function bindEvents(): void {
       }
 
       case 'log.submit': {
+        const maintenanceForm = (dom.logServiceForm as HTMLFormElement) || null;
+
         try {
-          const maintenanceForm =
-            (dom.logServiceForm as HTMLFormElement) || null;
-          const input = readMaintenanceLogForm(maintenanceForm);
+          const input =
+            maintenanceStore.readMaintenanceLogForm(maintenanceForm);
 
-          const bikeId = appState.selectedBikeId;
+          const bike_id = appState.selectedBikeId;
+          if (!bike_id) throw new Error('No bike selected');
+
           const currentTask = appState.currentMaintenanceItem;
-
-          if (!bikeId) throw new Error('No bike selected');
           if (!currentTask) throw new Error('No maintenance item selected');
 
-          const existingTask = getMaintenanceTask(bikeId, currentTask);
+          const existingTask = maintenanceStore.getMaintenanceTask(
+            bike_id,
+            currentTask,
+          );
 
-          if (!existingTask) {
-            maintenanceStore.addMaintenanceTask(input, bikeId);
-          } else {
-            maintenanceStore.updateMaintenanceTask(existingTask.id, input);
-          }
+          await upsertMaintenanceApi({
+            bike_id,
+            name: currentTask,
+            date: input.date,
+            odo: input.odo !== null ? Number(input.odo) : null,
+            interval_km: existingTask?.interval_km ?? null,
+            interval_days: existingTask?.interval_days ?? null,
+          });
 
-          maintenanceStore.updateTaskInfo(bikeId);
+          await refreshMaintenance(bike_id);
+
+          maintenanceStore.updateTaskInfo(bike_id);
           maintenanceStore.updateOverallProgress(dom);
           maintenanceForm.reset();
           render.closeServiceModal();
@@ -304,26 +310,33 @@ function bindEvents(): void {
       }
 
       case 'schedule.submit': {
-        try {
-          const scheduleForm =
-            (dom.scheduleServiceForm as HTMLFormElement) || null;
-          const input = readMaintenanceScheduleForm(scheduleForm);
+        const scheduleForm =
+          (dom.scheduleServiceForm as HTMLFormElement) || null;
 
-          const bikeId = appState.selectedBikeId;
-          if (!bikeId) throw new Error('No bike selected');
+        try {
+          const input =
+            maintenanceStore.readMaintenanceScheduleForm(scheduleForm);
+
+          const bike_id = appState.selectedBikeId;
+          if (!bike_id) throw new Error('No bike selected');
 
           const currentTask = appState.currentMaintenanceItem;
           if (!currentTask) throw new Error('No maintenance item selected');
 
-          const patch = {
-            intervalDays:
-              input.intervalDays !== null ? Number(input.intervalDays) : null,
-            intervalKm:
-              input.intervalKm !== null ? Number(input.intervalKm) : null,
-          };
+          await upsertMaintenanceApi({
+            bike_id,
+            name: currentTask,
+            date: null,
+            odo: null,
+            interval_km:
+              input.interval_km !== null ? Number(input.interval_km) : null,
+            interval_days:
+              input.interval_days !== null ? Number(input.interval_days) : null,
+          });
 
-          maintenanceStore.scheduleTask(bikeId, currentTask, patch);
-          maintenanceStore.updateTaskInfo(bikeId);
+          await refreshMaintenance(bike_id);
+
+          maintenanceStore.updateTaskInfo(bike_id);
           maintenanceStore.updateOverallProgress(dom);
           render.closeServiceModal();
           scheduleForm.reset();

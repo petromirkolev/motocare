@@ -10,10 +10,10 @@ export type MaintenanceRow = {
 };
 
 export type UpsertMaintenanceBody = {
-  bikeId?: string;
+  bike_id?: string;
   name?: string;
   date?: string | null;
   odo?: number | null;
-  intervalKm?: number | null;
-  intervalDays?: number | null;
+  interval_km?: number | null;
+  interval_days?: number | null;
 };

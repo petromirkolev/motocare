@@ -22,12 +22,12 @@ export async function findMaintenanceByBikeAndName(
 }
 
 export async function createMaintenance(params: {
-  bikeId: string;
+  bike_id: string;
   name: string;
   date: string | null;
   odo: number | null;
-  intervalKm: number | null;
-  intervalDays: number | null;
+  interval_km: number | null;
+  interval_days: number | null;
 }): Promise<void> {
   await runQuery(
     `
@@ -45,13 +45,45 @@ export async function createMaintenance(params: {
     `,
     [
       uuidv4(),
-      params.bikeId,
+      params.bike_id,
       params.name,
       params.date,
       params.odo,
-      params.intervalKm,
-      params.intervalDays,
+      params.interval_km,
+      params.interval_days,
       new Date().toISOString(),
+    ],
+  );
+}
+
+export async function updateMaintenance(params: {
+  id: string;
+  bike_id: string;
+  name: string;
+  date: string | null;
+  odo: number | null;
+  interval_km: number | null;
+  interval_days: number | null;
+}): Promise<void> {
+  await runQuery(
+    `
+      UPDATE maintenance
+      SET
+        name = ?,
+        date = ?,
+        odo = ?,
+        interval_km = ?,
+        interval_days = ?
+      WHERE id = ? AND bike_id = ?
+    `,
+    [
+      params.name,
+      params.date,
+      params.odo,
+      params.interval_km,
+      params.interval_days,
+      params.id,
+      params.bike_id,
     ],
   );
 }

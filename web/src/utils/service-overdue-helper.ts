@@ -9,7 +9,7 @@ export function checkOverdueStatus(
   selectedBike: string,
   today: string,
 ) {
-  if (item.bikeId !== selectedBike) return;
+  if (item.bike_id !== selectedBike) return;
   if (!item.date) return;
 
   const bike = bikeStore.getBike(selectedBike);
@@ -18,9 +18,9 @@ export function checkOverdueStatus(
   let isOverdueByDate = false;
   let isOverdueByKm = false;
 
-  if (item.intervalDays) {
+  if (item.interval_days) {
     const nextDate = new Date(item.date);
-    nextDate.setDate(nextDate.getDate() + Number(item.intervalDays));
+    nextDate.setDate(nextDate.getDate() + Number(item.interval_days));
 
     const currentDate = new Date(today);
     const dueDays = (nextDate.getTime() - currentDate.getTime()) / 86400000;
@@ -28,8 +28,8 @@ export function checkOverdueStatus(
     isOverdueByDate = dueDays < 0;
   }
 
-  if (item.intervalKm) {
-    const dueKm = Number(item.odo) + Number(item.intervalKm);
+  if (item.interval_km) {
+    const dueKm = Number(item.odo) + Number(item.interval_km);
     isOverdueByKm = Number(bike.odo) > dueKm;
   }
 

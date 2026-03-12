@@ -1,20 +1,8 @@
-export type AuthSuccessUser = {
-  id: string;
-  email: string;
-};
-
-export type LoginResponse = {
-  message: string;
-  user: AuthSuccessUser;
-};
-
-export type RegisterResponse = {
-  message: string;
-};
-
-export type ErrorResponse = {
-  error: string;
-};
+import type {
+  RegisterResponse,
+  ErrorResponse,
+  LoginResponse,
+} from '../types/auth';
 
 const API_BASE_URL = 'http://localhost:3001';
 
