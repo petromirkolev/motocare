@@ -49,6 +49,10 @@ export class RegisterPage {
     await this.submit();
   }
 
+  async clickCancel(): Promise<void> {
+    await this.backButton.click();
+  }
+
   async expectError(message: string): Promise<void> {
     await expect(this.registerMessage).toContainText(message);
   }
