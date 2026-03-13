@@ -1,6 +1,13 @@
+import fs from 'fs';
+import path from 'path';
 import sqlite3 from 'sqlite3';
 
 const DB_PATH = process.env.DB_PATH || './data/motocare.sqlite';
+const DB_DIR = path.dirname(DB_PATH);
+
+if (!fs.existsSync(DB_DIR)) {
+  fs.mkdirSync(DB_DIR, { recursive: true });
+}
 
 export const db = new sqlite3.Database(DB_PATH, (err) => {
   if (err) {
