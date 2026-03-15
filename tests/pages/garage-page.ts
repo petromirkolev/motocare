@@ -21,6 +21,7 @@ export class GaragePage {
   readonly editBikeSaveButton: Locator;
   readonly editBikeCancelButton: Locator;
   readonly editBikeMessage: Locator;
+  readonly deleteBikeButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -43,6 +44,7 @@ export class GaragePage {
     this.editBikeSaveButton = this.page.getByTestId('btn-edit-bike-save');
     this.editBikeCancelButton = this.page.getByTestId('btn-edit-bike-cancel');
     this.editBikeMessage = this.page.getByTestId('edit-bike-hint');
+    this.deleteBikeButton = this.page.getByTestId(/bike-delete-/);
   }
 
   async expectGarageLoaded(): Promise<void> {
@@ -99,6 +101,14 @@ export class GaragePage {
 
   async expectError(message: string): Promise<void> {
     await expect(this.addBikeMessage).toContainText(message);
+  }
+
+  async deleteBikeByName(name: string): Promise<void> {
+    const bikeCard = this.page.locator('.bikeCard').filter({
+      hasText: name,
+    });
+
+    await bikeCard.getByTestId(/bike-delete-/).click();
   }
 
   async expectSuccess(message: string): Promise<void> {
