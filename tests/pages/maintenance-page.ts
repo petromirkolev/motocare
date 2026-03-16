@@ -22,6 +22,7 @@ export class MaintenancePage {
   readonly scheduleSubmitButton: Locator;
   readonly scheduleCancelButton: Locator;
   readonly scheduleServiceMessage: Locator;
+  readonly maintenanceHistoryContainer: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -53,6 +54,7 @@ export class MaintenancePage {
     this.scheduleSubmitButton = this.page.getByTestId('schedule-submit');
     this.scheduleCancelButton = this.page.getByTestId('schedule-cancel');
     this.scheduleServiceMessage = this.page.getByTestId('schedule-hint');
+    this.maintenanceHistoryContainer = this.page.getByTestId('history-section');
   }
 
   async goto(): Promise<void> {
