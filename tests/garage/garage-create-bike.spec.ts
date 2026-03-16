@@ -2,38 +2,28 @@ import { test } from '@playwright/test';
 import { GaragePage } from '../pages/garage-page';
 import { RegisterPage } from '../pages/register-page';
 import { LoginPage } from '../pages/login-page';
-
-function makeBike() {
-  return {
-    make: `Test Bike ${Date.now()}-${Math.floor(Math.random() * 10000)}`,
-    model: 'Tracer 9 GT',
-    year: '2021',
-    odometer: '12000',
-  };
-}
+import { uniqueEmail, makeBike } from '../utils/test-data';
 
 test.describe('Garage page test suite', () => {
   let garagePage: GaragePage;
-  const email = 'garage-seeded@example.com';
-  const password = 'testingpass';
-
-  test.beforeAll(async ({ browser }) => {
-    const page = await browser.newPage();
-    const registerPage = new RegisterPage(page);
-
-    await registerPage.gotoreg();
-    await registerPage.register(email, password);
-    await registerPage.expectSuccess('Registration successful');
-
-    await page.close();
-  });
+  let currentUser: { email: string; password: string };
 
   test.beforeEach(async ({ page }) => {
-    garagePage = new GaragePage(page);
+    currentUser = {
+      email: uniqueEmail('garage'),
+      password: 'testingpass',
+    };
+
+    const registerPage = new RegisterPage(page);
+    await registerPage.gotoreg();
+    await registerPage.register(currentUser.email, currentUser.password);
+    await registerPage.expectSuccess('Registration successful');
+
     const loginPage = new LoginPage(page);
+    garagePage = new GaragePage(page);
 
     await loginPage.goto();
-    await loginPage.login(email, password);
+    await loginPage.login(currentUser.email, currentUser.password);
     await loginPage.expectSuccess('Login success, opening garage...');
     await garagePage.expectGarageLoaded();
   });

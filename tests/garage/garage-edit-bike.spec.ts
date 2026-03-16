@@ -139,7 +139,7 @@ test.describe('Garage edit bike test suite', () => {
     await garagePage.fillEditBikeForm({ ...bike, model: '' });
     await garagePage.expectEditError('Model is required');
     await garagePage.cancelEditBike();
-    await garagePage.expectBikeVisible(bike.model);
+    await garagePage.expectBikeVisible(bike.make);
   });
 
   test('Edit bike with missing odo', async () => {
