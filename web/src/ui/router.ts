@@ -282,6 +282,16 @@ function bindEvents(): void {
             currentTask,
           );
 
+          if (
+            input.date === '' ||
+            input.date === null ||
+            input.date === undefined
+          )
+            throw new Error('Date is required');
+
+          if (Number(input.odo) < 0)
+            throw new Error('Odo must be a positive number');
+
           await upsertMaintenanceApi({
             bike_id,
             name: currentTask,
@@ -330,6 +340,12 @@ function bindEvents(): void {
         try {
           const input =
             maintenanceStore.readMaintenanceScheduleForm(scheduleForm);
+
+          if (Number(input.interval_days) <= 0)
+            throw new Error('Interval days must be a positive number');
+
+          if (Number(input.interval_km) <= 0)
+            throw new Error('Interval kilometers must be a positive number');
 
           const bike_id = appState.selectedBikeId;
           if (!bike_id) throw new Error('No bike selected');
