@@ -23,6 +23,10 @@ export class MaintenancePage {
   readonly scheduleCancelButton: Locator;
   readonly scheduleServiceMessage: Locator;
   readonly maintenanceHistoryContainer: Locator;
+  readonly onTrackCount: Locator;
+  readonly dueSoonCount: Locator;
+  readonly overdueCount: Locator;
+  readonly backToGarageButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -30,36 +34,61 @@ export class MaintenancePage {
     this.maintenanceScreen = this.page.getByTestId('screen-bike');
     this.maintenanceLogModal = this.page.getByTestId('modal-log');
     this.maintenanceScheduleModal = this.page.getByTestId('modal-schedule');
+
     this.oilServiceCard = this.page.getByTestId('task-card-oil');
     this.logOilService = this.page.locator(
       '[data-testid="task-card-oil"] [data-testid="btn-log-service-oil"]',
     );
+
     this.coolantServiceCard = this.page.getByTestId('task-card-coolant');
     this.logCoolantService = this.page.locator(
       '[data-testid="task-card-coolant"] [data-testid="btn-log-service-coolant"]',
     );
+
     this.logIntervalDoneAt = this.page.getByTestId('log-doneAt');
     this.logIntervalOdo = this.page.getByTestId('log-odo');
     this.logSubmitButton = this.page.getByTestId('log-submit');
     this.logCancelButton = this.page.getByTestId('log-cancel');
     this.logServiceMessage = this.page.getByTestId('log-hint');
+
     this.scheduleOilService = this.page.locator(
       '[data-testid="task-card-oil"] [data-testid="btn-task-calendar-oil"]',
     );
     this.scheduleCoolantService = this.page.locator(
       '[data-testid="task-card-coolant"] [data-testid="btn-task-calendar-coolant"]',
     );
+
     this.scheduleIntervalKm = this.page.getByTestId('schedule-interval-km');
     this.scheduleIntervalDays = this.page.getByTestId('schedule-interval-days');
     this.scheduleSubmitButton = this.page.getByTestId('schedule-submit');
     this.scheduleCancelButton = this.page.getByTestId('schedule-cancel');
     this.scheduleServiceMessage = this.page.getByTestId('schedule-hint');
+
     this.maintenanceHistoryContainer = this.page.getByTestId('history-section');
+    this.onTrackCount = this.page.getByTestId('stat-ok-count');
+    this.dueSoonCount = this.page.getByTestId('stat-dueSoon-count');
+    this.overdueCount = this.page.getByTestId('stat-overdue-count');
+    this.backToGarageButton = this.page.getByTestId('btn-back-to-garage');
   }
 
   async goto(): Promise<void> {
     await this.maintenanceScreenButton.click();
     await expect(this.maintenanceScreen).toBeVisible();
+  }
+
+  getTaskCard(taskId: string): Locator {
+    switch (taskId) {
+      case 'oil-change':
+        return this.oilServiceCard;
+      case 'coolant-change':
+        return this.coolantServiceCard;
+      default:
+        throw new Error(`Unknown task id: ${taskId}`);
+    }
+  }
+
+  getTaskField(taskId: string, field: 'last' | 'due'): Locator {
+    return this.getTaskCard(taskId).locator(`[data-field="${field}"]`);
   }
 
   async openMaintenanceLogModal(service: string): Promise<void> {
@@ -70,10 +99,12 @@ export class MaintenancePage {
       case 'coolant-change':
         await this.logCoolantService.click();
         break;
+      default:
+        throw new Error(`Unknown log service: ${service}`);
     }
   }
 
-  async fillMaintenanceLog(doneAt: any, odo: any): Promise<void> {
+  async fillMaintenanceLog(doneAt: string, odo: string): Promise<void> {
     await this.logIntervalDoneAt.fill(doneAt);
     await this.logIntervalOdo.fill(odo);
   }
@@ -86,6 +117,17 @@ export class MaintenancePage {
     await this.logCancelButton.click();
   }
 
+  async logMaintenance(
+    taskId: string,
+    doneAt: string,
+    odo: string,
+  ): Promise<void> {
+    await this.openMaintenanceLogModal(taskId);
+    await expect(this.maintenanceLogModal).toBeVisible();
+    await this.fillMaintenanceLog(doneAt, odo);
+    await this.saveMaintenanceLog();
+  }
+
   async openMaintenanceScheduleModal(service: string): Promise<void> {
     switch (service) {
       case 'oil-change':
@@ -94,6 +136,8 @@ export class MaintenancePage {
       case 'coolant-change':
         await this.scheduleCoolantService.click();
         break;
+      default:
+        throw new Error(`Unknown schedule service: ${service}`);
     }
   }
 
@@ -108,6 +152,35 @@ export class MaintenancePage {
 
   async cancelMaintenanceSchedule(): Promise<void> {
     await this.scheduleCancelButton.click();
+  }
+
+  async scheduleMaintenance(
+    taskId: string,
+    days: string,
+    km: string,
+  ): Promise<void> {
+    await this.openMaintenanceScheduleModal(taskId);
+    await expect(this.maintenanceScheduleModal).toBeVisible();
+    await this.fillMaintenanceSchedule(days, km);
+    await this.saveMaintenanceSchedule();
+  }
+
+  async expectTaskFieldContains(
+    taskId: string,
+    field: 'last' | 'due',
+    text: string,
+  ): Promise<void> {
+    await expect(this.getTaskField(taskId, field)).toContainText(text);
+  }
+
+  async expectStatusCounts(
+    onTrack: string,
+    dueSoon: string,
+    overdue: string,
+  ): Promise<void> {
+    await expect(this.onTrackCount).toHaveText(onTrack);
+    await expect(this.dueSoonCount).toHaveText(dueSoon);
+    await expect(this.overdueCount).toHaveText(overdue);
   }
 
   async expectScheduleError(message: string): Promise<void> {

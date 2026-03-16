@@ -29,8 +29,7 @@ export function checkDueStatus(
     const dueDays = (nextDate.getTime() - currentDate.getTime()) / 86400000;
 
     isOverdueByDate = dueDays < 0;
-
-    isDueSoonByDate = dueDays >= 0 && dueDays <= 30 && dueDays < intervalDays;
+    isDueSoonByDate = dueDays >= 0 && dueDays <= 30 && dueDays <= intervalDays;
   }
 
   if (item.interval_km) {
@@ -41,7 +40,7 @@ export function checkDueStatus(
     isOverdueByKm = kmRemaining < 0;
 
     isDueSoonByKm =
-      kmRemaining >= 0 && kmRemaining <= 500 && kmRemaining < intervalKm;
+      kmRemaining >= 0 && kmRemaining <= 500 && kmRemaining <= intervalKm;
   }
 
   if (isOverdueByDate || isOverdueByKm) return;
