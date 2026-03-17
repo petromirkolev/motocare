@@ -1,0 +1,10 @@
+services:
+  api:
+    build: ./api
+    container_name: motocare-api
+    ports:
+      - '3001:3001'
+    volumes:
+      - ./api/data:/app/data
+    environment:
+      - DB_PATH=./data/motocare.sqlite
