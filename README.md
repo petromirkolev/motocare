@@ -1,6 +1,6 @@
-# MotoCare
+# MotoCare Maintenance Tracker
 
-MotoCare is a lightweight motorcycle maintenance tracker built as a full-stack QA Automation portfolio project. It helps users track motorcycles, maintenance schedules, service logs, recent maintenance history, and derived maintenance states such as **On Track**, **Due Soon**, and **Overdue**.
+MotoCare Maintenance Tracker is a lightweight motorcycle maintenance tracker built as a full-stack QA Automation portfolio project. It helps riders track maintenance schedules, service logs, recent maintenance history, and derived maintenance states such as **On Track**, **Due Soon**, and **Overdue**.
 
 ## What this project demonstrates
 
@@ -22,7 +22,7 @@ MotoCare is a lightweight motorcycle maintenance tracker built as a full-stack Q
 - Input validation for email and password
 - Per-user data isolation
 
-![MotoCare login flow](docs/login.gif)
+![MotoCare Maintenance Tracker login flow](docs/login.gif)
 
 ### Garage
 
@@ -35,7 +35,7 @@ MotoCare is a lightweight motorcycle maintenance tracker built as a full-stack Q
 - Keep garage data isolated per user
 - Prevent invalid bike data through frontend + backend validation
 
-![MotoCare add bike flow](docs/add-bike.gif)
+![MotoCare Maintenance Tracker add bike flow](docs/add-bike.gif)
 
 ### Maintenance
 
@@ -51,7 +51,7 @@ Users can:
   - **Due Soon**
   - **Overdue**
 
-![MotoCare add maintenance flow](docs/add-maintenance.gif)
+![MotoCare Maintenance Tracker add maintenance flow](docs/add-maintenance.gif)
 
 ### Maintenance history and status
 
@@ -206,7 +206,7 @@ This runs the Playwright suite against the app served by Docker Compose, using a
 
 You need to run both the backend and the frontend.
 
-Terminal 1 — API
+### Terminal 1 — API
 
 ```bash
 cd api
@@ -216,7 +216,7 @@ npm run dev
 
 Runs on http://localhost:3001.
 
-Terminal 2 — Web
+### Terminal 2 — Web
 
 ```bash
 cd web
@@ -232,7 +232,7 @@ Then open the Vite URL shown in the terminal.
 
 This project can be run with Docker Compose.
 
-Start the full stack
+### Start the full stack
 
 ```bash
 docker compose up --build
@@ -243,7 +243,7 @@ docker compose up --build
 Frontend: http://localhost:4173
 API: http://localhost:3001
 
-Stop the containers
+### Stop the containers
 
 ```bash
 docker compose down
