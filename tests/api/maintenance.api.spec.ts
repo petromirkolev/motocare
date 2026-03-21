@@ -1,146 +1,13 @@
-import { test, expect, APIRequestContext, APIResponse } from '@playwright/test';
-import { uniqueEmail, API_URL, PASSWORD, makeBike } from '../utils/test-data';
-
-type LoginResponse = {
-  message: string;
-  user: {
-    id: string;
-  };
-};
-
-async function registerUser(
-  request: APIRequestContext,
-  email: string,
-  password = PASSWORD,
-): Promise<void> {
-  const response = await request.post(`${API_URL}/auth/register`, {
-    data: {
-      email,
-      password,
-    },
-  });
-
-  expect(response.status()).toBe(201);
-
-  const body = await response.json();
-  expect(body.message).toBe('User registered successfully');
-}
-
-async function loginUser(
-  request: APIRequestContext,
-  email: string,
-  password = PASSWORD,
-): Promise<LoginResponse> {
-  const response = await request.post(`${API_URL}/auth/login`, {
-    data: {
-      email,
-      password,
-    },
-  });
-
-  expect(response.status()).toBe(200);
-
-  const body = await response.json();
-  expect(body.message).toBe('Login successful');
-
-  return body as LoginResponse;
-}
-
-async function createBike(
-  request: APIRequestContext,
-  user_id: string,
-  overrides: Partial<{
-    make: string;
-    model: string;
-    year: number;
-    odo: number;
-  }> = {},
-): Promise<APIResponse> {
-  const bike = makeBike();
-  const response = await request.post(`${API_URL}/bikes`, {
-    data: {
-      user_id,
-      make: bike.make,
-      model: bike.model,
-      year: Number(bike.year),
-      odo: Number(bike.odometer),
-      ...overrides,
-    },
-  });
-
-  expect(response.status()).toBe(201);
-
-  const body = await response.json();
-  expect(body.message).toBe('Bike created successfully');
-
-  return response;
-}
-
-async function listFirstBike(
-  request: APIRequestContext,
-  user_id: string,
-): Promise<any> {
-  const response = await request.get(`${API_URL}/bikes?user_id=${user_id}`);
-
-  expect(response.status()).toBe(200);
-
-  const body = await response.json();
-  return body.bikes[0];
-}
-
-async function logMaintenance(
-  request: APIRequestContext,
-  bike_id: string,
-  overrides: Partial<{
-    bike_id: string;
-    name: 'oil-change' | 'coolant-change';
-    date: string;
-    odo: number;
-  }>,
-) {
-  const response = await request.post(`${API_URL}/maintenance/log`, {
-    data: {
-      bike_id,
-      name: overrides.name,
-      date: overrides.date,
-      odo: overrides.odo,
-    },
-  });
-
-  return response;
-}
-
-async function scheduleMaintenance(
-  request: APIRequestContext,
-  bike_id: string,
-  overrides: Partial<{
-    name: 'oil-change' | 'coolant-change';
-    interval_km: number;
-    interval_days: number;
-  }>,
-) {
-  const response = await request.post(`${API_URL}/maintenance/schedule`, {
-    data: {
-      bike_id,
-      name: overrides.name,
-      interval_km: overrides.interval_km,
-      interval_days: overrides.interval_days,
-    },
-  });
-
-  return response;
-}
-
-async function getMaintenance(
-  request: APIRequestContext,
-  bike_id: string,
-): Promise<APIResponse> {
-  const response = await request.get(
-    `${API_URL}/maintenance?bike_id=${bike_id}`,
-  );
-
-  return response;
-}
+import { test, expect } from '@playwright/test';
+import { uniqueEmail } from '../utils/test-data';
+import {
+  registerUser,
+  loginUser,
+  createBike,
+  logMaintenance,
+  scheduleMaintenance,
+  getMaintenance,
+} from '../utils/api-helpers';
 
 test.describe('Maintenance API test suite', () => {
   let email: string;
@@ -150,7 +17,8 @@ test.describe('Maintenance API test suite', () => {
   test.beforeEach(async ({ request }) => {
     email = uniqueEmail('api-maintenance');
     await registerUser(request, email);
-    const body = await loginUser(request, email);
+    const response = await loginUser(request, email);
+    const body = await response.json();
     user_id = body.user.id;
   });
 
@@ -399,13 +267,22 @@ test.describe('Maintenance API test suite', () => {
       'Maintenance scheduled successfully',
     );
 
+    const bike_1_maintenance = await getMaintenance(request, bike_id);
+
+    expect(bike_1_maintenance.status()).toBe(200);
+
+    const bike_1_records = await bike_1_maintenance.json();
+
+    expect(bike_1_records.maintenance).toHaveLength(1);
+    expect(bike_1_records.maintenance[0].name).toBe('oil-change');
+
     const schedule_coolant_service_bike_2 = await scheduleMaintenance(
       request,
       bike_2_id,
       { name: 'coolant-change', interval_km: 2000, interval_days: 200 },
     );
 
-    expect(schedule_coolant_service_bike_2.status()).toBe(201);
+    expect(schedule_oil_service_bike_1.status()).toBe(201);
 
     const coolant_service_bike_2_body =
       await schedule_coolant_service_bike_2.json();
@@ -414,22 +291,13 @@ test.describe('Maintenance API test suite', () => {
       'Maintenance scheduled successfully',
     );
 
-    const maintenance_bike_1 = await getMaintenance(request, bike_1_id);
+    const bike_2_maintenance = await getMaintenance(request, bike_2_id);
 
-    expect(maintenance_bike_1.status()).toBe(200);
+    expect(bike_2_maintenance.status()).toBe(200);
 
-    const bike_1_list_maintenance = await maintenance_bike_1.json();
+    const bike_2_records = await bike_2_maintenance.json();
 
-    console.log(bike_1_list_maintenance);
-
-    expect(bike_1_list_maintenance.maintenance).toHaveLength(1);
-
-    const maintenance_bike_2 = await getMaintenance(request, bike_2_id);
-
-    expect(maintenance_bike_2.status()).toBe(201);
-
-    const bike_2_list_maintenance = await maintenance_bike_2.json();
-
-    expect(bike_2_list_maintenance.maintenance).toHaveLength(0);
+    expect(bike_2_records.maintenance).toHaveLength(1);
+    expect(bike_2_records.maintenance[0].name).toBe('coolant-change');
   });
 });

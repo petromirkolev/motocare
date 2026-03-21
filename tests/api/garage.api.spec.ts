@@ -1,111 +1,13 @@
-import { test, expect, APIRequestContext, APIResponse } from '@playwright/test';
-import { uniqueEmail, API_URL, PASSWORD } from '../utils/test-data';
-
-type LoginResponse = {
-  message: string;
-  user: {
-    id: string;
-  };
-};
-
-async function registerUser(
-  request: APIRequestContext,
-  email: string,
-  password = PASSWORD,
-): Promise<void> {
-  const response = await request.post(`${API_URL}/auth/register`, {
-    data: {
-      email,
-      password,
-    },
-  });
-
-  expect(response.status()).toBe(201);
-
-  const body = await response.json();
-  expect(body.message).toBe('User registered successfully');
-}
-
-async function loginUser(
-  request: APIRequestContext,
-  email: string,
-  password = PASSWORD,
-): Promise<LoginResponse> {
-  const response = await request.post(`${API_URL}/auth/login`, {
-    data: {
-      email,
-      password,
-    },
-  });
-
-  expect(response.status()).toBe(200);
-
-  const body = await response.json();
-  expect(body.message).toBe('Login successful');
-
-  return body as LoginResponse;
-}
-
-async function createBike(
-  request: APIRequestContext,
-  user_id: string,
-  overrides: Partial<{
-    make: string;
-    model: string;
-    year: number;
-    odo: number;
-  }> = {},
-): Promise<APIResponse> {
-  const response = await request.post(`${API_URL}/bikes`, {
-    data: {
-      user_id,
-      make: 'Yamaha',
-      model: 'Tracer 9GT',
-      year: 2021,
-      odo: 1000,
-      ...overrides,
-    },
-  });
-
-  return response;
-}
-
-async function updateBike(
-  request: APIRequestContext,
-  user_id: string,
-  bike_id: string,
-  overrides: Partial<{
-    id: string;
-    make: string;
-    model: string;
-    year: number;
-    odo: number;
-  }>,
-): Promise<APIResponse> {
-  const updateResponse = await request.put(`${API_URL}/bikes/${bike_id}`, {
-    data: {
-      id: bike_id,
-      user_id,
-      make: overrides.make,
-      model: overrides.model,
-      year: overrides.year,
-      odo: overrides.odo,
-    },
-  });
-  return updateResponse;
-}
-
-async function listFirstBike(
-  request: APIRequestContext,
-  user_id: string,
-): Promise<any> {
-  const response = await request.get(`${API_URL}/bikes?user_id=${user_id}`);
-
-  expect(response.status()).toBe(200);
-
-  const body = await response.json();
-  return body.bikes[0];
-}
+import { test, expect } from '@playwright/test';
+import {
+  API_URL,
+  registerUser,
+  loginUser,
+  createBike,
+  updateBike,
+  listFirstBike,
+} from '../utils/api-helpers';
+import { uniqueEmail } from '../utils/test-data';
 
 test.describe('Garage API test suite', () => {
   let email: string;
@@ -113,9 +15,10 @@ test.describe('Garage API test suite', () => {
   let bike_id: string;
 
   test.beforeEach(async ({ request }) => {
-    email = uniqueEmail('api-garage');
+    email = uniqueEmail();
     await registerUser(request, email);
-    const body = await loginUser(request, email);
+    const response = await loginUser(request, email);
+    const body = await response.json();
     user_id = body.user.id;
   });
 
