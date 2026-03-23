@@ -33,7 +33,7 @@ export async function initDb(): Promise<void> {
       interval_km INTEGER,
       interval_days INTEGER,
       created_at TEXT NOT NULL,
-      FOREIGN KEY (bike_id) REFERENCES bikes(id)
+      FOREIGN KEY (bike_id) REFERENCES bikes(id) ON DELETE CASCADE
     )
   `);
 
@@ -45,7 +45,7 @@ export async function initDb(): Promise<void> {
       date TEXT NOT NULL,
       odo INTEGER NOT NULL,
       created_at TEXT NOT NULL,
-      FOREIGN KEY (bike_id) REFERENCES bikes(id)
+      FOREIGN KEY (bike_id) REFERENCES bikes(id) ON DELETE CASCADE
     )
   `);
 }
