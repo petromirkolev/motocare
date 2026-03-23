@@ -4,6 +4,7 @@ import { req } from '../utils/dom-helper';
 import { bikeStore, readBikeForm } from '../state/bike-store';
 import { createBikeApi, updateBikeApi, deleteBikeApi } from '../api/bikes';
 import { appState } from '../types/state';
+import { initState, resetState } from '../state/state-store';
 import { maintenanceStore } from '../state/maintenance-store';
 import { logMaintenanceApi, scheduleMaintenanceApi } from '../api/maintenance';
 import { loginUser, registerUser } from '../api/auth';
@@ -59,6 +60,9 @@ function bindEvents(): void {
         break;
 
       case 'auth.login': {
+        await resetState();
+        await initState();
+
         try {
           const loginForm = dom.loginForm as HTMLFormElement;
           const input = readLoginForm(loginForm);
@@ -105,6 +109,7 @@ function bindEvents(): void {
 
       case 'auth.logout':
         setCurrentUser(null);
+        await resetState();
         render.errorMessage('', action);
         render.initialScreen();
         break;

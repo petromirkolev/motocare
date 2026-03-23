@@ -34,6 +34,10 @@ async function loadState(): Promise<StoreState> {
   }
 }
 
+async function resetState(): Promise<void> {
+  ((state.bikes = []), (state.maintenance = []), (state.maintenanceLog = []));
+}
+
 function getState(): StoreState {
   return state;
 }
@@ -93,6 +97,7 @@ function subscribe(fn: () => void) {
 export {
   initState,
   loadState,
+  resetState,
   notify,
   subscribe,
   setState,
