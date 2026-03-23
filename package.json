@@ -28,11 +28,7 @@
   "homepage": "https://github.com/petromirkolev/motocare-maintenance-tracker#readme",
   "devDependencies": {
     "@playwright/test": "^1.58.2",
-    "@types/bcrypt": "^6.0.0",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
     "@types/node": "^25.5.0",
-    "@types/pg": "^8.20.0",
     "dotenv": "^17.3.1",
     "install": "^0.13.0",
     "npm": "^11.12.0",
