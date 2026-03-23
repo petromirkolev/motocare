@@ -2,15 +2,18 @@
 
 MotoCare Maintenance Tracker is a lightweight motorcycle maintenance tracker built as a full-stack QA Automation portfolio project. It helps riders track maintenance schedules, service logs, recent maintenance history, and derived maintenance states such as **On Track**, **Due Soon**, and **Overdue**.
 
+**Live app:** https://motocare-maintenance-tracker-web.onrender.com/
+
 ## What this project demonstrates
 
-- building and testing a stateful full-stack app
+- building and testing a stateful full-stack application
 - frontend and backend validation working together
-- SQLite persistence and derived domain logic
+- PostgreSQL persistence and derived maintenance domain logic
 - Playwright E2E coverage across real user flows
-- Playwright API testing for backend contract and validation checks
+- Playwright API coverage for backend contracts and validation
 - CI execution through GitHub Actions
-- testability-focused design: stable data-testid selectors, reusable Page Objects, isolated test data, and a resettable test DB workflow
+- testability-focused design: stable data-testid selectors, reusable Page Objects, isolated test data, and a resettable dedicated test database workflow
+- real deployment with **Render + Neon**
 
 ## Features
 
@@ -30,7 +33,7 @@ MotoCare Maintenance Tracker is a lightweight motorcycle maintenance tracker bui
 - Edit motorcycles
 - Delete motorcycles
 - Empty garage state
-- Persist bike data in SQLite
+- Persist bike data in PostgreSQL
 - Validate year and odometer rules
 - Keep garage data isolated per user
 - Prevent invalid bike data through frontend + backend validation
@@ -65,10 +68,11 @@ Users can:
 
 - **Frontend:** Vite + Vanilla TypeScript
 - **Backend:** Node.js + Express + TypeScript
-- **Database:** SQLite
+- **Database:** PostgreSQL (Neon)
 - **Containerization:** Docker + Docker Compose
 - **Testing:** Playwright
 - **CI:** GitHub Actions
+- **Deployment:** Render + Neon
 
 ## Architecture
 
@@ -76,7 +80,8 @@ Users can:
 /web    -> frontend client (Vite + TypeScript)
 /api    -> backend REST API (Node + Express + TypeScript)
 /tests  -> Playwright E2E tests, Page Objects, API tests, test helpers
-SQLite  -> persistence layer
+Neon    -> PostgreSQL persistence layer
+Render  -> frontend + backend hosting
 ```
 
 ## Test coverage
@@ -174,7 +179,7 @@ At the time of writing, the suite contains 114 Playwright tests.
 
 ## How tests are run
 
-Playwright is initialized at the repo root because tests target the whole system, not just the frontend. The root test workflow resets a dedicated SQLite test database before running the suite.
+Playwright is initialized at the repo root because tests target the whole system, not just the frontend. The root test workflow resets a dedicated PostgreSQL test database before running the suite.
 
 ### Root test harness
 
@@ -205,6 +210,13 @@ This runs the Playwright suite against the app served by Docker Compose, using a
 ## Running locally
 
 You need to run both the backend and the frontend.
+
+Before starting locally, configure the API environment:
+
+```text
+DATABASE_URL=your_dev_database_url
+TEST_DATABASE_URL=your_test_database_url
+```
 
 ### Terminal 1 — API
 
@@ -249,10 +261,13 @@ API: http://localhost:3001
 docker compose down
 ```
 
-## Notes
+## Deployment
 
-SQLite data is persisted through the ./api/data folder.
-The API and frontend are containerized separately and run together through Docker Compose.
+**Frontend**: Render Static Site
+**Backend**: Render Web Service
+**Database**: Neon PostgreSQL
+
+This project is deployed as a real full-stack application, not just a static frontend.
 
 ## CI
 
@@ -264,3 +279,8 @@ GitHub Actions runs the Playwright suite on push and pull request. CI setup incl
 - Playwright browser install
 - full E2E suite execution
 - test report artifact upload
+
+## Notes
+
+- The app uses separate database targets for local development, automated tests, and live deployment.
+- The live deployment runs on free-tier infrastructure, so the first request may be slower due to cold starts.
