@@ -17,7 +17,7 @@ export class LoginPage {
     this.loginMessage = this.page.getByTestId('login-hint');
   }
 
-  async goto(): Promise<void> {
+  async gotologin(): Promise<void> {
     await this.page.goto('/');
   }
 
@@ -34,16 +34,18 @@ export class LoginPage {
   }
 
   async login(email: string, password: string): Promise<void> {
+    await this.gotologin();
     await this.loginEmail.fill(email);
     await this.loginPassword.fill(password);
     await this.loginButton.click();
   }
 
-  async expectError(message: string): Promise<void> {
+  async expectLoginError(message: string): Promise<void> {
     await expect(this.loginMessage).toContainText(message);
+    await expect(this.loginScreen).toBeVisible();
   }
 
-  async expectSuccess(message: string): Promise<void> {
+  async expectLoginSuccess(message: string): Promise<void> {
     await expect(this.loginMessage).toContainText(message);
   }
 }

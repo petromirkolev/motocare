@@ -34,36 +34,30 @@ export class MaintenancePage {
     this.maintenanceScreen = this.page.getByTestId('screen-bike');
     this.maintenanceLogModal = this.page.getByTestId('modal-log');
     this.maintenanceScheduleModal = this.page.getByTestId('modal-schedule');
-
     this.oilServiceCard = this.page.getByTestId('task-card-oil');
     this.logOilService = this.page.locator(
       '[data-testid="task-card-oil"] [data-testid="btn-log-service-oil"]',
     );
-
     this.coolantServiceCard = this.page.getByTestId('task-card-coolant');
     this.logCoolantService = this.page.locator(
       '[data-testid="task-card-coolant"] [data-testid="btn-log-service-coolant"]',
     );
-
     this.logIntervalDoneAt = this.page.getByTestId('log-doneAt');
     this.logIntervalOdo = this.page.getByTestId('log-odo');
     this.logSubmitButton = this.page.getByTestId('log-submit');
     this.logCancelButton = this.page.getByTestId('log-cancel');
     this.logServiceMessage = this.page.getByTestId('log-hint');
-
     this.scheduleOilService = this.page.locator(
       '[data-testid="task-card-oil"] [data-testid="btn-task-calendar-oil"]',
     );
     this.scheduleCoolantService = this.page.locator(
       '[data-testid="task-card-coolant"] [data-testid="btn-task-calendar-coolant"]',
     );
-
     this.scheduleIntervalKm = this.page.getByTestId('schedule-interval-km');
     this.scheduleIntervalDays = this.page.getByTestId('schedule-interval-days');
     this.scheduleSubmitButton = this.page.getByTestId('schedule-submit');
     this.scheduleCancelButton = this.page.getByTestId('schedule-cancel');
     this.scheduleServiceMessage = this.page.getByTestId('schedule-hint');
-
     this.maintenanceHistoryContainer = this.page.getByTestId('history-section');
     this.onTrackCount = this.page.getByTestId('stat-ok-count');
     this.dueSoonCount = this.page.getByTestId('stat-dueSoon-count');

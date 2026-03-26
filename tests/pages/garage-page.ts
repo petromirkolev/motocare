@@ -91,6 +91,14 @@ export class GaragePage {
     await this.editBikeCancelButton.click();
   }
 
+  async deleteBikeByName(name: string): Promise<void> {
+    const bikeCard = this.page.locator('.bikeCard').filter({
+      hasText: name,
+    });
+
+    await bikeCard.getByTestId(/bike-delete-/).click();
+  }
+
   async expectBikeVisible(name: string): Promise<void> {
     await expect(this.garageGrid).toContainText(name);
   }
@@ -103,19 +111,15 @@ export class GaragePage {
     await expect(this.addBikeMessage).toContainText(message);
   }
 
-  async deleteBikeByName(name: string): Promise<void> {
-    const bikeCard = this.page.locator('.bikeCard').filter({
-      hasText: name,
-    });
-
-    await bikeCard.getByTestId(/bike-delete-/).click();
-  }
-
   async expectSuccess(message: string): Promise<void> {
     await expect(this.addBikeMessage).toContainText(message);
   }
 
   async expectEditError(message: string): Promise<void> {
     await expect(this.editBikeMessage).toContainText(message);
+  }
+
+  async expectGarageVisible() {
+    await expect(this.garageScreen).toBeVisible();
   }
 }

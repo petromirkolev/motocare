@@ -45,6 +45,7 @@ export class RegisterPage {
   }
 
   async register(email: string, password: string): Promise<void> {
+    await this.gotoreg();
     await this.fillEmail(email);
     await this.fillPassword(password);
     await this.fillConfirmPassword(password);
@@ -52,6 +53,7 @@ export class RegisterPage {
   }
 
   async clickCancel(): Promise<void> {
+    await this.gotoreg();
     await this.backButton.click();
   }
 
