@@ -1,54 +1,13 @@
-import { expect, test } from '@playwright/test';
-import { GaragePage } from '../pages/garage-page';
-import { RegisterPage } from '../pages/register-page';
-import { LoginPage } from '../pages/login-page';
-import { uniqueEmail, makeBike } from '../utils/test-data';
-import { MaintenancePage } from '../pages/maintenance-page';
+import { expect, test } from '../fixtures/maintenance-fixtures';
 
-test.describe('Maintenance log test suite', () => {
-  let registerPage: RegisterPage;
-  let loginPage: LoginPage;
-  let garagePage: GaragePage;
-  let maintenancePage: MaintenancePage;
-  let bike: ReturnType<typeof makeBike>;
-  let currentUser: { email: string; password: string };
-
-  const doneAt = '2026-03-16';
-  const odo = '100';
-
-  test.beforeEach(async ({ page }) => {
-    currentUser = {
-      email: uniqueEmail('garage'),
-      password: 'testingpass',
-    };
-
-    registerPage = new RegisterPage(page);
-    loginPage = new LoginPage(page);
-    garagePage = new GaragePage(page);
-    maintenancePage = new MaintenancePage(page);
-
-    bike = makeBike();
-
-    await registerPage.gotoreg();
-    await registerPage.register(currentUser.email, currentUser.password);
-    await registerPage.expectSuccess('Registration successful');
-
-    await loginPage.goto();
-    await loginPage.login(currentUser.email, currentUser.password);
-    await loginPage.expectSuccess('Login success, opening garage...');
-    await garagePage.expectGarageLoaded();
-
-    await garagePage.fillAddBikeForm(bike);
-    await garagePage.expectBikeVisible(bike.make);
-  });
-
-  test('Maintenance log modal is opening', async () => {
-    await maintenancePage.goto();
+test.describe('Maintenance logs', () => {
+  test('Maintenance log modal is opening', async ({ maintenancePage }) => {
     await maintenancePage.openMaintenanceLogModal('oil-change');
-    await expect(maintenancePage.maintenanceLogModal).toBeVisible();
   });
 
-  test('Maintenance log with valid date and odometer saves and shows in UI', async () => {
+  test('Maintenance log with valid date and odometer saves and shows in UI', async ({
+    maintenancePage,
+  }) => {
     await maintenancePage.goto();
 
     await maintenancePage.logMaintenance('oil-change', doneAt, odo);

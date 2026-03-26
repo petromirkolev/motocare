@@ -86,16 +86,21 @@ export class MaintenancePage {
   }
 
   async openMaintenanceLogModal(service: string): Promise<void> {
+    await this.goto();
+
     switch (service) {
       case 'oil-change':
         await this.logOilService.click();
         break;
+
       case 'coolant-change':
         await this.logCoolantService.click();
         break;
       default:
         throw new Error(`Unknown log service: ${service}`);
     }
+
+    await expect(this.maintenanceLogModal).toBeVisible();
   }
 
   async fillMaintenanceLog(doneAt: string, odo: string): Promise<void> {
