@@ -9,11 +9,10 @@ MotoCare Maintenance Tracker is a lightweight motorcycle maintenance tracker bui
 - building and testing a stateful full-stack application
 - frontend and backend validation working together
 - PostgreSQL persistence and derived maintenance domain logic
-- Playwright E2E coverage across real user flows
-- Playwright API coverage for backend contracts and validation
+- Playwright E2E and API coverage
 - CI execution through GitHub Actions
-- testability-focused design: stable data-testid selectors, reusable Page Objects, isolated test data, and a resettable dedicated test database workflow
-- real deployment with **Render + Neon**
+- testability-focused design: stable data-testid selectors, reusable Page Objects, fixtures/helpers, isolated test data, and separate local test database workflows for source-based and Docker-based runs
+- real deployment with **Render + Neon**, plus local source-based and Docker-based test workflows
 
 ## Features
 
@@ -68,7 +67,7 @@ Users can:
 
 - **Frontend:** Vite + Vanilla TypeScript
 - **Backend:** Node.js + Express + TypeScript
-- **Database:** PostgreSQL (Neon)
+- **Database:** PostgreSQL (local Docker for development/tests, Neon in production)
 - **Containerization:** Docker + Docker Compose
 - **Testing:** Playwright
 - **CI:** GitHub Actions
@@ -80,8 +79,9 @@ Users can:
 /web    -> frontend client (Vite + TypeScript)
 /api    -> backend REST API (Node + Express + TypeScript)
 /tests  -> Playwright E2E tests, Page Objects, API tests, test helpers
-Neon    -> PostgreSQL persistence layer
-Render  -> frontend + backend hosting
+Local   -> frontend/backend from source + PostgreSQL in Docker
+Docker  -> full local containerized stack
+Prod    -> Render + Neon deployment
 ```
 
 ## Test coverage
@@ -179,43 +179,83 @@ At the time of writing, the suite contains 114 Playwright tests.
 
 ## How tests are run
 
-Playwright is initialized at the repo root because tests target the whole system, not just the frontend. The root test workflow resets a dedicated PostgreSQL test database before running the suite.
+Playwright is initialized at the repo root because tests target the whole system, not just the frontend.
 
-### Root test harness
+The project supports three execution modes:
+
+- **Local** - frontend/backend run from source on the machine, PostgreSQL runs in Docker
+- **Docker** - frontend/backend/database all run in Docker
+- **Prod** - tests run against the deployed Render/Neon app
+
+### Run Playwright locally
 
 ```bash
 npm install
-npm run test:e2e
+npm run db:up
+npm run test:local
+npm run db:down
 ```
 
-### Other available commands
+Other available commands:
 
 ```bash
-npm run test:e2e:ui
-npm run test:e2e:headed
-npm run test:e2e:debug
+npm run test:local:ui
 ```
 
 ### Run Playwright against the Dockerized app
 
 ```bash
+npm run test:docker:fresh
+```
+
+Or step by step:
+
+```bash
 npm run db:test:reset
 npm run docker:test:up
-npm run test:docker
+npm run docker:test
 npm run docker:test:down
 ```
 
-This runs the Playwright suite against the app served by Docker Compose, using a separate SQLite test database.
+This runs the Playwright suite against the fully Dockerized app stack, using a separate PostgreSQL test database.
+
+### Run Playwright against Render/Neon
+
+```bash
+npm run test:prod
+```
+
+Other prod commands:
+
+```bash
+npm run test:prod:ui
+```
 
 ## Running locally
 
-You need to run both the backend and the frontend.
+MotoCare supports a local development setup where:
 
-Before starting locally, configure the API environment:
+- the **API** runs from source on your machine
+- the **frontend** runs from source on your machine
+- **PostgreSQL** runs in Docker
+
+### Environment files
+
+The API uses separate environment files for local development and automated tests.
+
+Example local development values:
 
 ```text
-DATABASE_URL=your_dev_database_url
-TEST_DATABASE_URL=your_test_database_url
+PORT=3001
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/motocare_dev
+TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/motocare_test
+NODE_ENV=development
+```
+
+### Start PostgreSQL
+
+```bash
+npm run db:up
 ```
 
 ### Terminal 1 — API
@@ -242,7 +282,7 @@ Then open the Vite URL shown in the terminal.
 
 ## Run with Docker
 
-This project can be run with Docker Compose.
+This project can also be run as a fully containerized local stack.
 
 ### Start the full stack
 
