@@ -1,10 +1,10 @@
 services:
   postgres:
     environment:
-      POSTGRES_DB: motocare_test
+      POSTGRES_DB: motocare_maintenance_test
 
   api:
     environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/motocare_test
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/motocare_maintenance_test
       PORT: 3001
       NODE_ENV: test

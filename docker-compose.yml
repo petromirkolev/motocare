@@ -18,7 +18,7 @@ services:
     ports:
       - '3001:3001'
     environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/motocare_dev
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/motocare_maintenance_dev
       PORT: 3001
       NODE_ENV: development
     depends_on:
