@@ -1,37 +1,20 @@
-import { test, expect } from '@playwright/test';
-import { uniqueEmail } from '../utils/test-data';
-import {
-  registerUser,
-  loginUser,
-  createBike,
-  logMaintenance,
-  scheduleMaintenance,
-  getMaintenance,
-} from '../utils/api-helpers';
+import { test, expect } from '../fixtures/api-fixtures';
+import { api } from '../utils/api-helpers';
 
 test.describe('Maintenance API test suite', () => {
-  let email: string;
-  let user_id: string;
-  let bike_id: string;
-
-  test.beforeEach(async ({ request }) => {
-    email = uniqueEmail('api-maintenance');
-    await registerUser(request, email);
-    const response = await loginUser(request, email);
-    const body = await response.json();
-    user_id = body.user.id;
-  });
-
-  test('Maintenance log with valid date/odo succeeds', async ({ request }) => {
-    const bikeResponse = await createBike(request, user_id);
-    const body = await bikeResponse.json();
-    bike_id = body.bike.id;
-
-    const logResponse = await logMaintenance(request, bike_id, {
-      name: 'oil-change',
-      date: '2026-03-16',
-      odo: 500,
-    });
+  test('Maintenance log with valid date/odo succeeds', async ({
+    request,
+    userWithOneBike,
+  }) => {
+    const logResponse = await api.logMaintenance(
+      request,
+      userWithOneBike.bike_id,
+      {
+        name: 'oil-change',
+        date: '2026-03-16',
+        odo: 500,
+      },
+    );
 
     expect(logResponse.status()).toBe(201);
 
@@ -39,7 +22,7 @@ test.describe('Maintenance API test suite', () => {
 
     expect(logBody.message).toBe('Maintenance created successfully');
 
-    const jobResponse = await getMaintenance(request, bike_id);
+    const jobResponse = await api.getMaintenance(request, bike_id);
 
     expect(jobResponse.status()).toBe(200);
 
