@@ -1,8 +1,12 @@
-import { Bike } from '../types/bike';
-
 export const validInput = {
-  email: 'example@test.com',
   password: 'testingpass',
+};
+
+export const invalidInput = {
+  email: 'invalidemail@',
+  password: 'testingpass123',
+  shortPassword: 'test',
+  longPassword: 'test'.repeat(50),
 };
 
 export const invalidEmailInput = {
@@ -59,7 +63,7 @@ export function makeBike() {
   return {
     make: `Test Bike ${Date.now()}-${Math.floor(Math.random() * 10000)}`,
     model: 'Tracer 9 GT',
-    year: '2021',
-    odometer: '1000',
+    year: 2021,
+    odo: 1000,
   };
 }

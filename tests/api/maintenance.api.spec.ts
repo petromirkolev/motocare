@@ -1,154 +1,138 @@
-import { test, expect } from '@playwright/test';
-import { uniqueEmail } from '../utils/test-data';
+import { test, expect } from '../fixtures/api-fixtures';
+import { api } from '../utils/api-helpers';
 import {
-  registerUser,
-  loginUser,
-  createBike,
-  logMaintenance,
-  scheduleMaintenance,
-  getMaintenance,
-} from '../utils/api-helpers';
+  INTERVAL_DAYS_REQUIRED,
+  INTERVAL_KM_REQUIRED,
+  MAINTENANCE_CREATE_SUCCESS,
+  MAINTENANCE_SCHEDULE_SUCCESS,
+  ODO_NEGATIVE_ERROR,
+} from '../utils/constants';
 
 test.describe('Maintenance API test suite', () => {
-  let email: string;
-  let user_id: string;
-  let bike_id: string;
-
-  test.beforeEach(async ({ request }) => {
-    email = uniqueEmail('api-maintenance');
-    await registerUser(request, email);
-    const response = await loginUser(request, email);
-    const body = await response.json();
-    user_id = body.user.id;
-  });
-
-  test('Maintenance log with valid date/odo succeeds', async ({ request }) => {
-    const bikeResponse = await createBike(request, user_id);
-    const body = await bikeResponse.json();
-    bike_id = body.bike.id;
-
-    const logResponse = await logMaintenance(request, bike_id, {
-      name: 'oil-change',
-      date: '2026-03-16',
-      odo: 500,
-    });
-
+  test('Maintenance log with valid date/odo succeeds', async ({
+    request,
+    userWithOneBike,
+    maintenanceLogInput,
+  }) => {
+    const logResponse = await api.logMaintenance(
+      request,
+      userWithOneBike.bike_id,
+      { ...maintenanceLogInput },
+    );
     expect(logResponse.status()).toBe(201);
 
     const logBody = await logResponse.json();
+    expect(logBody.message).toBe(MAINTENANCE_CREATE_SUCCESS);
 
-    expect(logBody.message).toBe('Maintenance created successfully');
-
-    const jobResponse = await getMaintenance(request, bike_id);
-
+    const jobResponse = await api.getMaintenance(
+      request,
+      userWithOneBike.bike_id,
+    );
     expect(jobResponse.status()).toBe(200);
 
     const jobBody = await jobResponse.json();
     const maintenance = jobBody.maintenance[0];
 
     expect(jobBody.maintenance).toHaveLength(1);
-    expect(maintenance.bike_id).toBe(bike_id);
-    expect(maintenance.name).toBe('oil-change');
-    expect(maintenance.date).toBe('2026-03-16');
-    expect(maintenance.odo).toBe(500);
+    expect(maintenance.bike_id).toBe(userWithOneBike.bike_id);
+    expect(maintenance.name).toBe(maintenanceLogInput.name);
+    expect(maintenance.date).toBe(maintenanceLogInput.date);
+    expect(maintenance.odo).toBe(maintenanceLogInput.odo);
   });
 
-  test('Maintenance log with negative odo is rejected', async ({ request }) => {
-    const bikeResponse = await createBike(request, user_id);
-    const body = await bikeResponse.json();
-    bike_id = body.bike.id;
-
-    const logResponse = await logMaintenance(request, bike_id, {
-      name: 'oil-change',
-      date: '2026-03-16',
-      odo: -500,
-    });
-
+  test('Maintenance log with negative odo is rejected', async ({
+    request,
+    userWithOneBike,
+    maintenanceLogInput,
+  }) => {
+    const logResponse = await api.logMaintenance(
+      request,
+      userWithOneBike.bike_id,
+      {
+        ...maintenanceLogInput,
+        odo: -500,
+      },
+    );
     expect(logResponse.status()).toBe(400);
 
     const upsertBody = await logResponse.json();
-
-    expect(upsertBody.error).toBe('odo must be a non-negative integer');
+    expect(upsertBody.error).toBe(ODO_NEGATIVE_ERROR);
   });
 
   test('Maintenance log for bike A does not affect bike B', async ({
     request,
+    userWithOneBike,
+    validBikeInput,
+    maintenanceLogInput,
   }) => {
-    const bikeOneResponse = await createBike(request, user_id);
-    const bikeOneBody = await bikeOneResponse.json();
-    bike_id = bikeOneBody.bike.id;
-
-    const bikeTwoResponse = await createBike(request, user_id);
-    const bikeTwoBody = await bikeTwoResponse.json();
-    const bike_id_2 = bikeTwoBody.bike.id;
-
-    const logResponse = await logMaintenance(request, bike_id, {
-      name: 'oil-change',
-      date: '2026-03-16',
-      odo: 1000,
-    });
-
+    const bike_2_response = await api.createBike(
+      request,
+      userWithOneBike.user_id,
+      { ...validBikeInput, make: 'Suzuki' },
+    );
+    const bike_2_body = await bike_2_response.json();
+    const bike_2_id = bike_2_body.bike.id;
+    const logResponse = await api.logMaintenance(
+      request,
+      userWithOneBike.bike_id,
+      {
+        ...maintenanceLogInput,
+      },
+    );
     expect(logResponse.status()).toBe(201);
 
     const logBody = await logResponse.json();
+    expect(logBody.message).toBe(MAINTENANCE_CREATE_SUCCESS);
 
-    expect(logBody.message).toBe('Maintenance created successfully');
+    const bike_1_maintenance = await api.getMaintenance(
+      request,
+      userWithOneBike.bike_id,
+    );
+    expect(bike_1_maintenance.status()).toBe(200);
 
-    const bikeOneGetMaintenance = await getMaintenance(request, bike_id);
+    const bike_1_maintenance_body = await bike_1_maintenance.json();
+    const bike_1_maintenance_records = bike_1_maintenance_body.maintenance[0];
 
-    expect(bikeOneGetMaintenance.status()).toBe(200);
+    expect(bike_1_maintenance_body.maintenance).toHaveLength(1);
+    expect(bike_1_maintenance_records.bike_id).toBe(userWithOneBike.bike_id);
+    expect(bike_1_maintenance_records.name).toBe(maintenanceLogInput.name);
 
-    const bikeOneMaintenanceBody = await bikeOneGetMaintenance.json();
+    const bike_2_maintenance = await api.getMaintenance(request, bike_2_id);
+    expect(bike_2_maintenance.status()).toBe(200);
 
-    const bikeOneMaintenance = bikeOneMaintenanceBody.maintenance[0];
-
-    expect(bikeOneMaintenanceBody.maintenance).toHaveLength(1);
-    expect(bikeOneMaintenance.bike_id).toBe(bike_id);
-    expect(bikeOneMaintenance.name).toBe('oil-change');
-
-    const bikeTwoGetMaintenance = await getMaintenance(request, bike_id_2);
-
-    expect(bikeTwoGetMaintenance.status()).toBe(200);
-
-    const bikeTwoMaintenanceBody = await bikeTwoGetMaintenance.json();
-    const bikeTwoMaintenance = bikeTwoMaintenanceBody.maintenance[0];
-
-    expect(bikeTwoMaintenanceBody.maintenance).toHaveLength(0);
+    const bike_2_maintenance_body = await bike_2_maintenance.json();
+    expect(bike_2_maintenance_body.maintenance).toHaveLength(0);
   });
 
   test('Logging one maintenance item does not affect another item', async ({
     request,
+    userWithOneBike,
+    maintenanceLogInput,
   }) => {
-    const bikeResponse = await createBike(request, user_id);
-    const body = await bikeResponse.json();
-    bike_id = body.bike.id;
-
-    const oilResponse = await logMaintenance(request, bike_id, {
-      name: 'oil-change',
-      date: '2026-03-16',
-      odo: 500,
-    });
-
+    const oilResponse = await api.logMaintenance(
+      request,
+      userWithOneBike.bike_id,
+      { ...maintenanceLogInput },
+    );
     expect(oilResponse.status()).toBe(201);
 
     const oilBody = await oilResponse.json();
+    expect(oilBody.message).toBe(MAINTENANCE_CREATE_SUCCESS);
 
-    expect(oilBody.message).toBe('Maintenance created successfully');
-
-    const coolantResponse = await logMaintenance(request, bike_id, {
-      name: 'coolant-change',
-      date: '2026-03-17',
-      odo: 1000,
-    });
-
+    const coolantResponse = await api.logMaintenance(
+      request,
+      userWithOneBike.bike_id,
+      { ...maintenanceLogInput, name: 'coolant-change' },
+    );
     expect(coolantResponse.status()).toBe(201);
 
     const coolantBody = await coolantResponse.json();
+    expect(coolantBody.message).toBe(MAINTENANCE_CREATE_SUCCESS);
 
-    expect(coolantBody.message).toBe('Maintenance created successfully');
-
-    const maintenanceResponse = await getMaintenance(request, bike_id);
-
+    const maintenanceResponse = await api.getMaintenance(
+      request,
+      userWithOneBike.bike_id,
+    );
     expect(maintenanceResponse.status()).toBe(200);
 
     const maintenanceBody = await maintenanceResponse.json();
@@ -157,146 +141,137 @@ test.describe('Maintenance API test suite', () => {
 
     expect(maintenanceBody.maintenance).toHaveLength(2);
 
-    expect(oilMaintenance.bike_id).toBe(bike_id);
-    expect(oilMaintenance.name).toBe('oil-change');
-    expect(oilMaintenance.date).toBe('2026-03-16');
-    expect(oilMaintenance.odo).toBe(500);
+    expect(oilMaintenance.bike_id).toBe(userWithOneBike.bike_id);
+    expect(oilMaintenance.name).toBe(maintenanceLogInput.name);
+    expect(oilMaintenance.date).toBe(maintenanceLogInput.date);
+    expect(oilMaintenance.odo).toBe(maintenanceLogInput.odo);
 
-    expect(coolantMaintenance.bike_id).toBe(bike_id);
+    expect(coolantMaintenance.bike_id).toBe(userWithOneBike.bike_id);
     expect(coolantMaintenance.name).toBe('coolant-change');
-    expect(coolantMaintenance.date).toBe('2026-03-17');
-    expect(coolantMaintenance.odo).toBe(1000);
+    expect(coolantMaintenance.date).toBe(maintenanceLogInput.date);
+    expect(coolantMaintenance.odo).toBe(maintenanceLogInput.odo);
   });
 
   test('Maintenance schedule with valid days/km succeeds', async ({
     request,
+    userWithOneBike,
+    maintenanceScheduleInput,
   }) => {
-    const bikeResponse = await createBike(request, user_id);
-    const body = await bikeResponse.json();
-    bike_id = body.bike.id;
-
-    const logResponse = await scheduleMaintenance(request, bike_id, {
-      name: 'oil-change',
-      interval_km: 1000,
-      interval_days: 100,
-    });
-
+    const logResponse = await api.scheduleMaintenance(
+      request,
+      userWithOneBike.bike_id,
+      { ...maintenanceScheduleInput },
+    );
     expect(logResponse.status()).toBe(201);
 
     const logBody = await logResponse.json();
+    expect(logBody.message).toBe(MAINTENANCE_SCHEDULE_SUCCESS);
 
-    expect(logBody.message).toBe('Maintenance scheduled successfully');
-
-    const getResponse = await getMaintenance(request, bike_id);
-
+    const getResponse = await api.getMaintenance(
+      request,
+      userWithOneBike.bike_id,
+    );
     expect(getResponse.status()).toBe(200);
 
     const getBody = await getResponse.json();
 
     expect(getBody.maintenance).toHaveLength(1);
-    expect(getBody.maintenance[0].bike_id).toBe(bike_id);
-    expect(getBody.maintenance[0].name).toBe('oil-change');
-    expect(getBody.maintenance[0].interval_km).toBe(1000);
-    expect(getBody.maintenance[0].interval_days).toBe(100);
+    expect(getBody.maintenance[0].bike_id).toBe(userWithOneBike.bike_id);
+    expect(getBody.maintenance[0].name).toBe(maintenanceScheduleInput.name);
+    expect(getBody.maintenance[0].interval_km).toBe(
+      maintenanceScheduleInput.interval_km,
+    );
+    expect(getBody.maintenance[0].interval_days).toBe(
+      maintenanceScheduleInput.interval_days,
+    );
   });
 
   test('Maintenance schedule with missing days is rejected', async ({
     request,
+    userWithOneBike,
+    maintenanceScheduleInput,
   }) => {
-    const bikeResponse = await createBike(request, user_id);
-    const body = await bikeResponse.json();
-    bike_id = body.bike.id;
-
-    const logResponse = await scheduleMaintenance(request, bike_id, {
-      name: 'oil-change',
-      interval_km: 1000,
-    });
-
+    const logResponse = await api.scheduleMaintenance(
+      request,
+      userWithOneBike.bike_id,
+      { ...maintenanceScheduleInput, interval_days: undefined },
+    );
     expect(logResponse.status()).toBe(400);
 
     const logBody = await logResponse.json();
-
-    expect(logBody.error).toBe('interval_days is required');
+    expect(logBody.error).toBe(INTERVAL_DAYS_REQUIRED);
   });
 
   test('Maintenance schedule with missing kilometers is rejected', async ({
     request,
+    userWithOneBike,
+    maintenanceScheduleInput,
   }) => {
-    const bikeResponse = await createBike(request, user_id);
-    const body = await bikeResponse.json();
-    bike_id = body.bike.id;
-
-    const logResponse = await scheduleMaintenance(request, bike_id, {
-      name: 'oil-change',
-      interval_days: 100,
-    });
-
+    const logResponse = await api.scheduleMaintenance(
+      request,
+      userWithOneBike.bike_id,
+      {
+        ...maintenanceScheduleInput,
+        interval_km: undefined,
+      },
+    );
     expect(logResponse.status()).toBe(400);
 
     const logBody = await logResponse.json();
-
-    expect(logBody.error).toBe('interval_km is required');
+    expect(logBody.error).toBe(INTERVAL_KM_REQUIRED);
   });
 
   test('Maintenance schedule for bike A does not affect bike B', async ({
     request,
+    userWithOneBike,
+    maintenanceScheduleInput,
+    validBikeInput,
   }) => {
-    const bike_1 = await createBike(request, user_id);
-    const bike_1_body = await bike_1.json();
-    const bike_1_id = bike_1_body.bike.id;
-
-    const bike_2 = await createBike(request, user_id);
+    const bike_2 = await api.createBike(request, userWithOneBike.user_id, {
+      ...validBikeInput,
+      make: 'Suzuki',
+    });
     const bike_2_body = await bike_2.json();
     const bike_2_id = bike_2_body.bike.id;
-
-    const schedule_oil_service_bike_1 = await scheduleMaintenance(
+    const schedule_oil_service_bike_1 = await api.scheduleMaintenance(
       request,
-      bike_id,
-      {
-        name: 'oil-change',
-        interval_km: 1000,
-        interval_days: 100,
-      },
+      userWithOneBike.bike_id,
+      { ...maintenanceScheduleInput },
     );
-
     expect(schedule_oil_service_bike_1.status()).toBe(201);
 
     const oil_service_bike_1_body = await schedule_oil_service_bike_1.json();
+    expect(oil_service_bike_1_body.message).toBe(MAINTENANCE_SCHEDULE_SUCCESS);
 
-    expect(oil_service_bike_1_body.message).toBe(
-      'Maintenance scheduled successfully',
+    const bike_1_maintenance = await api.getMaintenance(
+      request,
+      userWithOneBike.bike_id,
     );
-
-    const bike_1_maintenance = await getMaintenance(request, bike_id);
-
     expect(bike_1_maintenance.status()).toBe(200);
 
     const bike_1_records = await bike_1_maintenance.json();
-
     expect(bike_1_records.maintenance).toHaveLength(1);
-    expect(bike_1_records.maintenance[0].name).toBe('oil-change');
-
-    const schedule_coolant_service_bike_2 = await scheduleMaintenance(
-      request,
-      bike_2_id,
-      { name: 'coolant-change', interval_km: 2000, interval_days: 200 },
+    expect(bike_1_records.maintenance[0].name).toBe(
+      maintenanceScheduleInput.name,
     );
 
+    const schedule_coolant_service_bike_2 = await api.scheduleMaintenance(
+      request,
+      bike_2_id,
+      { ...maintenanceScheduleInput, name: 'coolant-change' },
+    );
     expect(schedule_oil_service_bike_1.status()).toBe(201);
 
     const coolant_service_bike_2_body =
       await schedule_coolant_service_bike_2.json();
-
     expect(coolant_service_bike_2_body.message).toBe(
-      'Maintenance scheduled successfully',
+      MAINTENANCE_SCHEDULE_SUCCESS,
     );
 
-    const bike_2_maintenance = await getMaintenance(request, bike_2_id);
-
+    const bike_2_maintenance = await api.getMaintenance(request, bike_2_id);
     expect(bike_2_maintenance.status()).toBe(200);
 
     const bike_2_records = await bike_2_maintenance.json();
-
     expect(bike_2_records.maintenance).toHaveLength(1);
     expect(bike_2_records.maintenance[0].name).toBe('coolant-change');
   });

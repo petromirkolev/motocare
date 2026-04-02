@@ -1,7 +1,13 @@
-export type Bike = {
-  make: string;
-  model: string;
-  year: number;
+export type ValidBikeInput = {
+  make?: string;
+  model?: string;
+  year?: number;
+  odo?: number;
+};
+
+export type InvalidBikeInput = {
+  yearBelow: number;
+  yearAbove: number;
   odo: number;
 };
 
