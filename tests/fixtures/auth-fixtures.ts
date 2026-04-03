@@ -1,35 +1,48 @@
 import { test as base, expect } from './base-fixtures';
-import { uniqueEmail, validInput } from '../utils/test-data';
+import { invalidInput, uniqueEmail, validInput } from '../utils/test-data';
+import { InvalidUserInput, ValidUserInput } from '../types/auth';
+import { api } from '../utils/api-helpers';
 
 type AuthFixtures = {
-  registeredUser: { email: string; password: string };
-  loggedInUser: { email: string; password: string };
+  validUserInput: ValidUserInput;
+  invalidUserInput: InvalidUserInput;
+  registeredUser: ValidUserInput;
+  loggedInUser: ValidUserInput;
 };
 
 export const test = base.extend<AuthFixtures>({
-  registeredUser: async ({ registerPage, loginPage }, use) => {
-    const user = {
-      email: uniqueEmail('register-test'),
+  validUserInput: async ({}, use) => {
+    await use({
+      email: uniqueEmail(),
       password: validInput.password,
-    };
-
-    await registerPage.register(user.email, user.password, user.password);
-    await expect(loginPage.loginScreen).toBeVisible();
-    await use(user);
+      confirmPassword: validInput.password,
+    });
   },
 
-  loggedInUser: async ({ registerPage, loginPage, garagePage }, use) => {
-    const user = {
-      email: uniqueEmail('login-test'),
-      password: validInput.password,
-    };
-    await registerPage.register(user.email, user.password, user.password);
-    await expect(loginPage.loginScreen).toBeVisible();
+  invalidUserInput: async ({}, use) => {
+    const { email, password, shortPassword, longPassword } = invalidInput;
+    await use({ email, password, shortPassword, longPassword });
+  },
 
-    await loginPage.login(user.email, user.password);
-    await garagePage.expectGarageVisible();
+  registeredUser: async ({ request, validUserInput }, use) => {
+    await api.registerUser(request, { ...validUserInput });
+    await use({ ...validUserInput });
+  },
 
-    await use(user);
+  loggedInUser: async (
+    { request, registeredUser, registerPage, loginPage, garagePage },
+    use,
+  ) => {
+    await api.loginUser(request, { ...registeredUser });
+
+    await use({ ...registeredUser });
+
+    // await expect(loginPage.loginScreen).toBeVisible();
+
+    // await loginPage.login(user.email, user.password);
+    // await garagePage.expectGarageVisible();
+
+    // await use(user);
   },
 });
 

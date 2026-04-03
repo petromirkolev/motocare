@@ -15,9 +15,11 @@ test.describe('Garage API test suite', () => {
     loggedInUser,
     validBikeInput,
   }) => {
-    const response = await api.createBike(request, loggedInUser.user_id, {
-      ...validBikeInput,
-    });
+    const response = await api.createBike(
+      request,
+      loggedInUser.user_id,
+      validBikeInput,
+    );
     expect(response.status()).toBe(201);
 
     const body = await response.json();
@@ -81,7 +83,7 @@ test.describe('Garage API test suite', () => {
       request,
       userWithOneBike.user_id,
       userWithOneBike.bike_id,
-      { ...validBikeUpdateInput },
+      validBikeUpdateInput,
     );
     expect(updateResponse.status()).toBe(200);
 

@@ -2,12 +2,18 @@ export const API_URL = 'http://127.0.0.1:3001';
 
 // Auth
 export const USER_REGISTER_SUCCESS = 'User registered successfully';
+export const REGISTER_SUCCESS_UI = 'Registration successful!';
 export const LOGIN_SUCCESS = 'Login successful';
+export const LOGIN_SUCCESS_UI = 'Login success, opening garage...';
 export const USER_EXIST = 'User already exists';
 export const INVALID_EMAIL = 'Invalid email format';
 export const EMAIL_PASS_REQUIRED = 'Email and password are required';
-export const PASS_SHORT = 'Password must be at least 8 characters';
-export const PASS_LONG = 'Password must be 32 characters at most';
+export const EMAIL_REQUIRED = 'Email is required';
+export const PASS_REQUIRED = 'Password is required';
+export const CONFIRM_PASS_REQUIRED = 'Confirm password is required';
+export const PASS_SHORT = 'Password must be 8 characters at minimum';
+export const PASS_LONG = 'Password must be 32 characters at maximum';
+export const PASS_NOT_MATCH = 'Passwords do not match';
 export const INVALID_CREDENTIALS = 'Invalid credentials';
 
 // Bike

@@ -17,7 +17,7 @@ test.describe('Maintenance API test suite', () => {
     const logResponse = await api.logMaintenance(
       request,
       userWithOneBike.bike_id,
-      { ...maintenanceLogInput },
+      maintenanceLogInput,
     );
     expect(logResponse.status()).toBe(201);
 
@@ -75,9 +75,7 @@ test.describe('Maintenance API test suite', () => {
     const logResponse = await api.logMaintenance(
       request,
       userWithOneBike.bike_id,
-      {
-        ...maintenanceLogInput,
-      },
+      maintenanceLogInput,
     );
     expect(logResponse.status()).toBe(201);
 

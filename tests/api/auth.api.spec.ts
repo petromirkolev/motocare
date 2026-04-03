@@ -113,7 +113,7 @@ test.describe('Auth API test suite', () => {
     request,
     registeredUser,
   }) => {
-    const loginResponse = await api.loginUser(request, { ...registeredUser });
+    const loginResponse = await api.loginUser(request, registeredUser);
     expect(loginResponse.status()).toBe(200);
 
     const loginBody = await loginResponse.json();
