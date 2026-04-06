@@ -76,7 +76,10 @@ test.describe('Maintenance status', () => {
     logInput,
     scheduleInput,
     maintenancePage,
+    page,
   }) => {
+    await page.clock.setFixedTime(new Date('2026-03-16T12:00:00').getTime());
+
     await maintenancePage.gotoMaintenance();
 
     await maintenancePage.logMaintenance(logInput);
@@ -91,13 +94,13 @@ test.describe('Maintenance status', () => {
 
     await maintenancePage.scheduleMaintenance({
       ...scheduleInput,
-      interval_days: 20,
+      interval_days: 10,
     });
 
     await maintenancePage.expectTaskFieldContains(
       'oil-change',
       'due',
-      'April 5, 2026 or at 2000 km.',
+      'March 26, 2026 or at 2000 km.',
     );
     await maintenancePage.expectStatusCounts('1', '1', '0');
   });

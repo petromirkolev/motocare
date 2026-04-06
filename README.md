@@ -177,7 +177,7 @@ The project includes both Playwright E2E tests and Playwright API tests.
 - bike isolation
 - maintenance item isolation
 
-At the time of writing, the suite contains 116 Playwright tests.
+At the time of writing, the suite contains **116 Playwright tests** (348 executions across Chromium, Firefox, and WebKit).
 
 ## How tests are run
 
