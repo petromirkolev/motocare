@@ -2,7 +2,7 @@ import { test, expect } from '../fixtures/api-fixtures';
 import { api } from '../utils/api-helpers';
 import { msg } from '../../constants/constants';
 
-test.describe('Garage API test suite', () => {
+test.describe('MMT API - Garage', () => {
   test('Create bike with valid data succeeds', async ({
     request,
     loggedInUser,

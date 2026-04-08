@@ -1,6 +1,6 @@
 import { test } from '../fixtures/garage-fixtures';
 
-test.describe('Garage empty state', () => {
+test.describe('MMT - Garage empty E2E', () => {
   test('Garage shows empty state when no bikes are added', async ({
     loggedInUser,
     garagePage,

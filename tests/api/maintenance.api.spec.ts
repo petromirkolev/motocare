@@ -2,7 +2,7 @@ import { test, expect } from '../fixtures/api-fixtures';
 import { api } from '../utils/api-helpers';
 import { msg } from '../../constants/constants';
 
-test.describe('Maintenance API test suite', () => {
+test.describe('MMT API - Maintenance', () => {
   test('Maintenance log with valid date/odo succeeds', async ({
     request,
     userWithOneBike,

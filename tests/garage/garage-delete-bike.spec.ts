@@ -1,6 +1,6 @@
 import { test } from '../fixtures/garage-fixtures';
 
-test.describe('Garage delete bike', () => {
+test.describe('MMT - Garage delete E2E', () => {
   test('Delete bike removes the selected bike', async ({
     garageWithOneBike,
     garagePage,

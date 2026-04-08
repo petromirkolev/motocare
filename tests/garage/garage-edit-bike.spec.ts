@@ -1,7 +1,7 @@
 import { msg } from '../../constants/constants';
 import { test, expect } from '../fixtures/garage-fixtures';
 
-test.describe('Garage edit bike', () => {
+test.describe('MMT - Garage edit E2E', () => {
   test('Edit bike with valid data updates the bike', async ({
     garageWithOneBike,
     validBikeInput,

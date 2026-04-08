@@ -1,7 +1,7 @@
 import { expect, test } from '../fixtures/maintenance-fixtures';
 import { makeBike } from '../utils/test-data';
 
-test.describe('Maintenance history', () => {
+test.describe('MMT - Maintenance history E2E', () => {
   test('Maintenance history is empty when no maintenance logs are saved', async ({
     garageWithOneBike,
     maintenancePage,

@@ -2,7 +2,7 @@ import { msg } from '../../constants/constants';
 import { expect, test } from '../fixtures/maintenance-fixtures';
 import { makeBike } from '../utils/test-data';
 
-test.describe('Maintenance schedule', () => {
+test.describe('MMT - Maintenance schedule E2E', () => {
   test('User can open maintenance schedule modal', async ({
     garageWithOneBike,
     maintenancePage,

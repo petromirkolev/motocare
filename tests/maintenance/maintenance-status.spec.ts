@@ -1,7 +1,7 @@
 import { test } from '../fixtures/maintenance-fixtures';
 import { makeBike } from '../utils/test-data';
 
-test.describe('Maintenance status', () => {
+test.describe('MMT - Maintenance status E2E', () => {
   test('Maintenance status counts are zero when no maintenance logs are present', async ({
     garageWithOneBike,
     maintenancePage,

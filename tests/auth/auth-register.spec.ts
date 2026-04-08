@@ -2,7 +2,7 @@ import { test, expect } from '../fixtures/auth-fixtures';
 import { msg } from '../../constants/constants';
 import { invalidEmailInput, invalidPasswordInput } from '../utils/test-data';
 
-test.describe('Register page test suite', () => {
+test.describe('MMT - Register E2E', () => {
   test('User can register with valid credentials', async ({
     registerPage,
     validUserInput,

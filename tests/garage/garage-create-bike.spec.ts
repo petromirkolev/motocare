@@ -1,7 +1,7 @@
 import { test } from '../fixtures/garage-fixtures';
 import { msg } from '../../constants/constants';
 
-test.describe('Garage create bike', () => {
+test.describe('MMT - Garage create E2E', () => {
   test.describe('Valid data', () => {
     test('Create bike with valid data', async ({
       loggedInUser,
