@@ -48,20 +48,6 @@ test.describe('MMT - Garage create E2E', () => {
       await garagePage.expectBikeNotVisible(validBikeInput.make);
     });
 
-    test('Create bike with empty odo when odo is optional', async ({
-      loggedInUser,
-      validBikeInput,
-      garagePage,
-    }) => {
-      await garagePage.addBike({
-        ...validBikeInput,
-        odo: undefined,
-      });
-      await garagePage.expectBikeVisible(validBikeInput.make);
-    });
-  });
-
-  test.describe('Invalid data', () => {
     test('Create bike with missing all fields', async ({
       loggedInUser,
       validBikeInput,
@@ -77,6 +63,20 @@ test.describe('MMT - Garage create E2E', () => {
       await garagePage.expectBikeNotVisible(validBikeInput.make);
     });
 
+    test('Create bike with empty odo when odo is optional', async ({
+      loggedInUser,
+      validBikeInput,
+      garagePage,
+    }) => {
+      await garagePage.addBike({
+        ...validBikeInput,
+        odo: undefined,
+      });
+      await garagePage.expectBikeVisible(validBikeInput.make);
+    });
+  });
+
+  test.describe('Invalid data', () => {
     test('Create bike with invalid year < 1900', async ({
       loggedInUser,
       validBikeInput,
