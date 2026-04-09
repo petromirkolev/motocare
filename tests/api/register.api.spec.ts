@@ -1,33 +1,30 @@
-import { test, expect } from '../fixtures/api-fixtures';
+import { test } from '../fixtures/api-fixtures';
 import { api } from '../utils/api-helpers';
 import { msg } from '../../constants/constants';
+import { expectApiError, expectApiSuccess } from '../utils/helpers';
 
 test.describe('MMT API - Register', () => {
-  test('Register with valid credentials succeeds', async ({
+  test('Register with valid credentials returns 201', async ({
     request,
     validUserInput,
   }) => {
     const response = await api.registerUser(request, validUserInput);
-    expect(response.status()).toBe(201);
 
-    const body = await response.json();
-    expect(body.message).toBe(msg.USER_REG_OK);
+    expectApiSuccess(response, 201, 'message', msg.USER_REG_OK);
   });
 
-  test('Register with duplicate email is rejected', async ({
+  test('Register with duplicate email returns 409', async ({
     request,
     validUserInput,
   }) => {
     await api.registerUser(request, validUserInput);
 
     const duplicateResponse = await api.registerUser(request, validUserInput);
-    expect(duplicateResponse.status()).toBe(409);
 
-    const duplicateBody = await duplicateResponse.json();
-    expect(duplicateBody.error).toBe(msg.USER_EXISTS);
+    expectApiError(duplicateResponse, 409, 'error', msg.USER_EXISTS);
   });
 
-  test('Register with invalid email is rejected', async ({
+  test('Register with invalid email returns 400', async ({
     request,
     validUserInput,
     invalidUserInput,
@@ -36,13 +33,11 @@ test.describe('MMT API - Register', () => {
       ...validUserInput,
       email: invalidUserInput.email,
     });
-    expect(response.status()).toBe(400);
 
-    const body = await response.json();
-    expect(body.error).toBe(msg.EMAIL_INVALID);
+    expectApiError(response, 400, 'error', msg.EMAIL_INVALID);
   });
 
-  test('Register with missing email is rejected', async ({
+  test('Register with missing email returns 400', async ({
     request,
     validUserInput,
   }) => {
@@ -50,13 +45,11 @@ test.describe('MMT API - Register', () => {
       ...validUserInput,
       email: undefined,
     });
-    expect(response.status()).toBe(400);
 
-    const body = await response.json();
-    expect(body.error).toBe(msg.EMAIL_PASS_REQ);
+    expectApiError(response, 400, 'error', msg.EMAIL_PASS_REQ);
   });
 
-  test('Register with missing password is rejected', async ({
+  test('Register with missing password returns 400', async ({
     request,
     validUserInput,
   }) => {
@@ -64,13 +57,11 @@ test.describe('MMT API - Register', () => {
       ...validUserInput,
       password: undefined,
     });
-    expect(response.status()).toBe(400);
 
-    const body = await response.json();
-    expect(body.error).toBe(msg.EMAIL_PASS_REQ);
+    expectApiError(response, 400, 'error', msg.EMAIL_PASS_REQ);
   });
 
-  test('Register with short password is rejected', async ({
+  test('Register with short password returns 400', async ({
     request,
     validUserInput,
     invalidUserInput,
@@ -79,13 +70,11 @@ test.describe('MMT API - Register', () => {
       ...validUserInput,
       password: invalidUserInput.shortPassword,
     });
-    expect(response.status()).toBe(400);
 
-    const body = await response.json();
-    expect(body.error).toBe(msg.PASS_SHORT);
+    expectApiError(response, 400, 'error', msg.PASS_SHORT);
   });
 
-  test('Register with long password is rejected', async ({
+  test('Register with long password returns 400', async ({
     request,
     validUserInput,
     invalidUserInput,
@@ -94,9 +83,7 @@ test.describe('MMT API - Register', () => {
       ...validUserInput,
       password: invalidUserInput.longPassword,
     });
-    expect(response.status()).toBe(400);
 
-    const body = await response.json();
-    expect(body.error).toBe(msg.PASS_LONG);
+    expectApiError(response, 400, 'error', msg.PASS_LONG);
   });
 });

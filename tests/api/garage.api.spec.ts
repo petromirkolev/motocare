@@ -1,9 +1,14 @@
 import { test, expect } from '../fixtures/api-fixtures';
 import { api } from '../utils/api-helpers';
 import { msg } from '../../constants/constants';
+import {
+  expectApiError,
+  expectApiSuccess,
+  expectBikeUpdateSuccess,
+} from '../utils/helpers';
 
 test.describe('MMT API - Garage', () => {
-  test('Create bike with valid data succeeds', async ({
+  test('Create bike with valid data returns 200', async ({
     request,
     loggedInUser,
     validBikeInput,
@@ -13,13 +18,11 @@ test.describe('MMT API - Garage', () => {
       loggedInUser.user_id,
       validBikeInput,
     );
-    expect(response.status()).toBe(201);
 
-    const body = await response.json();
-    expect(body.message).toBe(msg.BIKE_CREATE_OK);
+    expectApiSuccess(response, 201, 'message', msg.BIKE_CREATE_OK);
   });
 
-  test('Create bike with invalid year above maximum is rejected', async ({
+  test('Create bike with invalid year above maximum returns 400', async ({
     request,
     loggedInUser,
     validBikeInput,
@@ -29,13 +32,11 @@ test.describe('MMT API - Garage', () => {
       ...validBikeInput,
       year: invalidBikeInput.yearAbove,
     });
-    expect(response.status()).toBe(400);
 
-    const body = await response.json();
-    expect(body.error).toBe(msg.BIKE_YEAR_RANGE);
+    expectApiError(response, 400, 'error', msg.BIKE_YEAR_RANGE);
   });
 
-  test('Create bike with invalid year below minimum is rejected', async ({
+  test('Create bike with invalid year below minimum returns 400', async ({
     request,
     loggedInUser,
     validBikeInput,
@@ -45,13 +46,11 @@ test.describe('MMT API - Garage', () => {
       ...validBikeInput,
       year: invalidBikeInput.yearBelow,
     });
-    expect(response.status()).toBe(400);
 
-    const body = await response.json();
-    expect(body.error).toBe(msg.BIKE_YEAR_RANGE);
+    expectApiError(response, 400, 'error', msg.BIKE_YEAR_RANGE);
   });
 
-  test('Create bike with negative odometer is rejected', async ({
+  test('Create bike with negative odometer returns 400', async ({
     request,
     loggedInUser,
     validBikeInput,
@@ -61,13 +60,11 @@ test.describe('MMT API - Garage', () => {
       ...validBikeInput,
       odo: invalidBikeInput.odo,
     });
-    expect(response.status()).toBe(400);
 
-    const body = await response.json();
-    expect(body.error).toBe(msg.BIKE_ODO_POS);
+    expectApiError(response, 400, 'error', msg.BIKE_ODO_POS);
   });
 
-  test('Update bike with valid data succeeds', async ({
+  test('Update bike with valid data returns 200', async ({
     request,
     userWithOneBike,
     validBikeUpdateInput,
@@ -78,19 +75,15 @@ test.describe('MMT API - Garage', () => {
       userWithOneBike.bike_id,
       validBikeUpdateInput,
     );
-    expect(updateResponse.status()).toBe(200);
 
-    const updateBody = await updateResponse.json();
-    expect(updateBody.message).toBe(msg.BIKE_UPDATE_OK);
+    expectApiSuccess(updateResponse, 200, 'message', msg.BIKE_UPDATE_OK);
 
     const bike = await api.listFirstBike(request, userWithOneBike.user_id);
-    expect(bike.make).toBe(validBikeUpdateInput.make);
-    expect(bike.model).toBe(validBikeUpdateInput.model);
-    expect(bike.year).toBe(validBikeUpdateInput.year);
-    expect(bike.odo).toBe(validBikeUpdateInput.odo);
+
+    expectBikeUpdateSuccess(bike, validBikeUpdateInput);
   });
 
-  test('Update bike with lower odometer is rejected', async ({
+  test('Update bike with lower odometer returns 400', async ({
     request,
     userWithOneBike,
     validBikeUpdateInput,
@@ -101,24 +94,21 @@ test.describe('MMT API - Garage', () => {
       userWithOneBike.bike_id,
       { ...validBikeUpdateInput, odo: validBikeUpdateInput.odo - 100 },
     );
-    expect(updateResponse.status()).toBe(400);
 
-    const updateBody = await updateResponse.json();
-    expect(updateBody.error).toBe(msg.BIKE_ODO_DECR);
+    expectApiError(updateResponse, 400, 'error', msg.BIKE_ODO_DECR);
   });
 
-  test('Delete bike succeeds', async ({ request, userWithOneBike }) => {
+  test('Delete bike returns 200', async ({ request, userWithOneBike }) => {
     const deleteResponse = await api.deleteBike(
       request,
       userWithOneBike.user_id,
       userWithOneBike.bike_id,
     );
-    expect(deleteResponse.status()).toBe(200);
 
-    const deleteBody = await deleteResponse.json();
-    expect(deleteBody.message).toBe(msg.BIKE_DELETE_OK);
+    expectApiSuccess(deleteResponse, 200, 'message', msg.BIKE_DELETE_OK);
 
     const bike = await api.listFirstBike(request, userWithOneBike.user_id);
+
     expect(bike).toBeUndefined();
   });
 });

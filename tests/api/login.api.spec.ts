@@ -1,20 +1,19 @@
-import { test, expect } from '../fixtures/api-fixtures';
+import { test } from '../fixtures/api-fixtures';
 import { api } from '../utils/api-helpers';
 import { msg } from '../../constants/constants';
+import { expectApiError, expectApiSuccess } from '../utils/helpers';
 
 test.describe('MMT API - Login', () => {
-  test('Login with valid credentials succeeds', async ({
+  test('Login with valid credentials returns 200', async ({
     request,
     registeredUser,
   }) => {
     const loginResponse = await api.loginUser(request, registeredUser);
-    expect(loginResponse.status()).toBe(200);
 
-    const loginBody = await loginResponse.json();
-    expect(loginBody.message).toBe(msg.USER_LOG_OK);
+    expectApiSuccess(loginResponse, 200, 'message', msg.USER_LOG_OK);
   });
 
-  test('Login with wrong password is rejected', async ({
+  test('Login with wrong password returns 401', async ({
     request,
     registeredUser,
     invalidUserInput,
@@ -23,13 +22,11 @@ test.describe('MMT API - Login', () => {
       ...registeredUser,
       password: invalidUserInput.password,
     });
-    expect(loginResponse.status()).toBe(401);
 
-    const loginBody = await loginResponse.json();
-    expect(loginBody.error).toBe(msg.CRED_INVALID);
+    expectApiError(loginResponse, 401, 'error', msg.CRED_INVALID);
   });
 
-  test('Login with non existing email is rejected', async ({
+  test('Login with non existing email returns 401', async ({
     request,
     registeredUser,
     invalidUserInput,
@@ -38,13 +35,11 @@ test.describe('MMT API - Login', () => {
       ...registeredUser,
       email: invalidUserInput.email,
     });
-    expect(loginResponse.status()).toBe(401);
 
-    const loginBody = await loginResponse.json();
-    expect(loginBody.error).toBe(msg.CRED_INVALID);
+    expectApiError(loginResponse, 401, 'error', msg.CRED_INVALID);
   });
 
-  test('Login with missing email is rejected', async ({
+  test('Login with missing email returns 400', async ({
     request,
     registeredUser,
   }) => {
@@ -52,13 +47,11 @@ test.describe('MMT API - Login', () => {
       ...registeredUser,
       email: undefined,
     });
-    expect(loginResponse.status()).toBe(400);
 
-    const loginBody = await loginResponse.json();
-    expect(loginBody.error).toBe(msg.EMAIL_PASS_REQ);
+    expectApiError(loginResponse, 400, 'error', msg.EMAIL_PASS_REQ);
   });
 
-  test('Login with missing password is rejected', async ({
+  test('Login with missing password returns 400', async ({
     request,
     registeredUser,
   }) => {
@@ -66,9 +59,7 @@ test.describe('MMT API - Login', () => {
       ...registeredUser,
       password: undefined,
     });
-    expect(loginResponse.status()).toBe(400);
 
-    const loginBody = await loginResponse.json();
-    expect(loginBody.error).toBe(msg.EMAIL_PASS_REQ);
+    expectApiError(loginResponse, 400, 'error', msg.EMAIL_PASS_REQ);
   });
 });

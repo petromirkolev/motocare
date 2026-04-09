@@ -14,10 +14,7 @@ export const api = {
     input: ValidUserInput,
   ): Promise<APIResponse> {
     const response = await request.post(`${API_URL}/auth/register`, {
-      data: {
-        email: input.email,
-        password: input.password,
-      },
+      data: input,
     });
 
     return response;
@@ -28,10 +25,7 @@ export const api = {
     input: ValidUserInput,
   ): Promise<APIResponse> {
     const response = await request.post(`${API_URL}/auth/login`, {
-      data: {
-        email: input.email,
-        password: input.password,
-      },
+      data: input,
     });
 
     return response;
